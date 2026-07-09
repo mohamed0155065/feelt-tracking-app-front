@@ -1,5 +1,5 @@
 export default function page() {
   return (
-    <div>login</div>
+    <div>tracking</div>
   )
 }
