@@ -51,7 +51,7 @@ const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
           FleetTrack
         </h2>
         <p className="text-slate-500 text-sm mt-1" style={{ fontFamily: "'Cairo', sans-serif" }}>
-          نظام إدارة وتتبع أسطول السيارات الذكي
+         نظام إدارة وتتبع  السيارات
         </p>
       </div>
 
