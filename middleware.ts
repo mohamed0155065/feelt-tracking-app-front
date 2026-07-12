@@ -2,47 +2,63 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
+type Role = "admin" | "driver";
+
+const jwtSecret = process.env.JWT_SECRET;
+
+if (!jwtSecret) {
+  throw new Error("JWT_SECRET is not defined");
+}
+
+const secret = new TextEncoder().encode(jwtSecret);
+
+const routePermissions: Record<Role, string[]> = {
+  admin: ["/dashboard", "/drivers", "/vehicles", "/history"],
+  driver: ["/tracking"],
+};
+
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
-  const pathname = request.nextUrl.pathname;
+  const { pathname } = request.nextUrl;
+
+  const redirect = (path: string) =>
+    NextResponse.redirect(new URL(path, request.url));
 
 
   if (!token) {
-    if (pathname === "/login") return NextResponse.next();
-    return NextResponse.redirect(new URL("/login", request.url));
+    return pathname === "/login" ? NextResponse.next() : redirect("/login");
   }
 
+  let role: Role;
 
-  let role: string;
   try {
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
     const { payload } = await jwtVerify(token, secret);
-    role = payload.role as string;
-  } catch {
 
-    return NextResponse.redirect(new URL("/login", request.url));
+    if (payload.role !== "admin" && payload.role !== "driver") {
+      return redirect("/login");
+    }
+
+    role = payload.role;
+  } catch {
+    return redirect("/login");
   }
 
 
   if (pathname === "/login") {
-    return NextResponse.redirect(
-      new URL(role === "admin" ? "/dashboard" : "/tracking", request.url)
+    return redirect(role === "admin" ? "/dashboard" : "/tracking");
+  }
+
+
+  for (const [allowedRole, routes] of Object.entries(routePermissions) as [
+    Role,
+    string[]
+  ][]) {
+    const isProtectedRoute = routes.some((route) =>
+      pathname === route || pathname.startsWith(route + "/")
     );
-  }
 
-
-  if (pathname.startsWith("/dashboard") ||
-    pathname.startsWith("/drivers") ||
-    pathname.startsWith("/vehicles") ||
-    pathname.startsWith("/history")) {
-    if (role !== "admin") {
-      return NextResponse.redirect(new URL("/tracking", request.url));
-    }
-  }
-
-  if (pathname.startsWith("/tracking")) {
-    if (role !== "driver") {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+    if (isProtectedRoute && role !== allowedRole) {
+      return redirect(role === "admin" ? "/dashboard" : "/tracking");
     }
   }
 
