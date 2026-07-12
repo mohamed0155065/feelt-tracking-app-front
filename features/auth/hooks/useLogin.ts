@@ -1,36 +1,75 @@
 "use client";
-import { useState } from 'react';
-import { loginApi } from '../api/login';
+import useLoginMutation from "./useLoginMutation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema } from "../schemas";
+import { useInfoUser } from "@/store/auth.store";
+import { LoginCredentials } from "../types";
 
+// خاصه بتسجيل الدخول hook هي 
 export const useLogin = () => {
-  const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [realPassword, setRealPassword] = useState('');
-  const [displayPassword, setDisplayPassword] = useState('');
+  // zod والتحقق منها عن طريق (inputs)الخاصه بال states
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginCredentials>({
+    resolver: zodResolver(loginSchema),
+  });
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsLoading(true);
-    await loginApi({ email, password: realPassword });
-    setIsLoading(false);
-    alert('تم تسجيل الدخول بنجاح');
+  // tanStack Query ارسال البيانات للسيرفر عن طريق
+  const {
+    mutate: login,
+    isPending: isLoggingIn,
+    isError: isLoginError,
+  } = useLoginMutation();
+
+  // zustand الاستور الخاص بالبيانات اللي هتتخزن عندي في
+  const { setToken, setUserInfo } = useInfoUser();
+
+  // لما اليوزر يضغط علي زر تسجيل الدخول
+  const onSubmit = (dataUser: LoginCredentials) => {
+    const { email, password } = dataUser;
+    login(
+      { email, password },
+      {
+        onSuccess: (data_user) => {
+          // البيانات اللي راجعه من السيرفر بعد تسجيل الدخول
+          const {
+            data: {
+              user: { email, role, name, id },
+              accessToken,
+            },
+            message,
+          } = data_user;
+
+          // تحديث الاستور بالبيانات الخاصه بالمستخدم
+          setToken(accessToken);
+          setUserInfo({
+            email: email,
+            role: role,
+            name: name,
+            id: id,
+          });
+
+          // توجيه المستخدم حسب الصلاحيه تبعو
+          if (role === "admin") location.replace("/dashboard");
+          else if (role === "driver") location.replace("/tracking");
+        },
+        onError: (error) => {
+          alert("حدث خطا ما");
+          console.error(error)
+        },
+      },
+    );
   };
 
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    if (val.length < displayPassword.length) {
-      setRealPassword(realPassword.slice(0, val.length));
-      setDisplayPassword(val);
-      return;
-    }
-    const lastChar = val.charAt(val.length - 1);
-    const newReal = realPassword + lastChar;
-    setRealPassword(newReal);
-    setDisplayPassword('•'.repeat(realPassword.length) + lastChar);
-    setTimeout(() => {
-      setDisplayPassword('•'.repeat(newReal.length));
-    }, 2000);
+  return {
+    isLoggingIn,
+    handleSubmit,
+    register,
+    onSubmit,
+    errors,
+    isLoginError,
   };
-
-  return { email, setEmail, isLoading, displayPassword, handlePasswordChange, handleSubmit };
 };
