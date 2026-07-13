@@ -1,5 +1,4 @@
-export default function page() {
-  return (
-    <div>drivers</div>
-  )
+import DriversFeature from '@/features/drivers';
+export default function DriversPage() {
+  return <DriversFeature />;
 }

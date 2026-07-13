@@ -1,4 +1,3 @@
-"use client";
 import VehiclesFeature from '@/features/vehicles';
 
 export default function VehiclesPage() {

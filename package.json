@@ -1,5 +1,5 @@
 {
-  "name": "feelt-tracking-app",
+  "name": "fleet-tracking-app",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -20,10 +20,6 @@
     "pusher-js": "^8.5.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "react-hook-form": "^7.80.0",
-    "react-map-gl": "^8.1.1",
-    "socket.io-client": "^4.8.3",
-    "zod": "^4.4.3",
     "zustand": "^5.0.14"
   },
   "devDependencies": {
@@ -31,11 +27,9 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "autoprefixer": "^10.5.2",
     "eslint": "^9",
-    "eslint-config-next": "16.2.9",
-    "postcss": "^8.5.16",
-    "tailwindcss": "^4.3.2",
+    "eslint-config-next": "16.2.10",
+    "tailwindcss": "^4",
     "typescript": "^5"
   }
 }

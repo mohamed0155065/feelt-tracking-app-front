@@ -1,5 +1,4 @@
-export default function page() {
-  return (
-    <div>history</div>
-  )
+import HistoryFeature from '@/features/history';
+export default function HistoryPage() {
+  return <HistoryFeature />;
 }
