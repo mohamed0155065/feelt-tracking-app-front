@@ -1,20 +1,26 @@
 "use client";
 
 import React from "react";
+import { cn } from "@/lib/utils"; // لو عندك helper زي clsx/cn
+
+interface DotBackgroundProps {
+  children: React.ReactNode;
+  className?: string;
+}
 
 export default function DotBackground({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+  className,
+}: DotBackgroundProps) {
   return (
     <div
-      className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-950 to-blue-950"
-      style={{
-        backgroundImage:
-          "radial-gradient(at 0% 0%, rgba(29, 78, 216, 0.15) 0, transparent 50%), radial-gradient(at 50% 0%, rgba(15, 23, 42, 0.3) 0, transparent 50%), radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0)",
-        backgroundSize: "100% 100%, 100% 100%, 24px 24px",
-      }}
+      className={cn(
+        "min-h-screen flex items-center justify-center relative overflow-hidden",
+        "bg-gradient-to-br from-slate-900 via-slate-950 to-blue-950",
+        "bg-[radial-gradient(at_0%_0%,rgba(29,78,216,0.15)_0,transparent_50%),radial-gradient(at_50%_0%,rgba(15,23,42,0.3)_0,transparent_50%),radial-gradient(rgba(255,255,255,0.03)_1px,transparent_0)]",
+        "bg-[length:100%_100%,100%_100%,24px_24px]",
+        className
+      )}
     >
       {children}
     </div>

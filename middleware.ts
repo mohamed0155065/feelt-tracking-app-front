@@ -1,23 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { jwtVerify } from "jose";
 
-type Role = "admin" | "driver";
-
-const jwtSecret = process.env.JWT_SECRET;
-
-if (!jwtSecret) {
-  throw new Error("JWT_SECRET is not defined");
-}
-
-const secret = new TextEncoder().encode(jwtSecret);
-
-const routePermissions: Record<Role, string[]> = {
-  admin: ["/dashboard", "/drivers", "/vehicles", "/history"],
-  driver: ["/tracking"],
-};
-
-export async function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
   const { pathname } = request.nextUrl;
 
@@ -26,40 +10,16 @@ export async function middleware(request: NextRequest) {
 
 
   if (!token) {
-    return pathname === "/login" ? NextResponse.next() : redirect("/login");
-  }
-
-  let role: Role;
-
-  try {
-    const { payload } = await jwtVerify(token, secret);
-
-    if (payload.role !== "admin" && payload.role !== "driver") {
-      return redirect("/login");
+    if (pathname === "/login") {
+      return NextResponse.next();
     }
 
-    role = payload.role;
-  } catch {
     return redirect("/login");
   }
 
 
   if (pathname === "/login") {
-    return redirect(role === "admin" ? "/dashboard" : "/tracking");
-  }
-
-
-  for (const [allowedRole, routes] of Object.entries(routePermissions) as [
-    Role,
-    string[]
-  ][]) {
-    const isProtectedRoute = routes.some((route) =>
-      pathname === route || pathname.startsWith(route + "/")
-    );
-
-    if (isProtectedRoute && role !== allowedRole) {
-      return redirect(role === "admin" ? "/dashboard" : "/tracking");
-    }
+    return redirect("/dashboard");
   }
 
   return NextResponse.next();
