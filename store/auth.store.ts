@@ -1,22 +1,39 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { User } from '@/lib/types';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { AuthTypes } from "./types.auth.store";
 
-interface AuthState {
-  user: User | null;
-  token: string | null;
-  setAuth: (user: User, token: string) => void;
-  logout: () => void;
-}
-
-export const useAuthStore = create<AuthState>()(
+export const useInfoUser = create<AuthTypes>()(
   persist(
     (set) => ({
-      user: null,
-      token: null,
-      setAuth: (user, token) => set({ user, token }),
-      logout: () => set({ user: null, token: null }),
+      // states
+      token: undefined,
+      userInfo: {
+        id: null,
+        name: null,
+        email: null,
+        role: null,
+      },
+
+      // actions
+      setToken: (token) => set({ token }),
+      setUserInfo: (userInfo) => set({ userInfo }),
+      logOut: () =>
+        set({
+          token: undefined,
+          userInfo: {
+            id: null,
+            name: null,
+            email: null,
+            role: null,
+          },
+        }),
     }),
-    { name: 'fleet-auth-storage' }
-  )
+    // set data in local storage
+    {
+      name: "auth-storage",
+      partialize: (state) => ({
+        token: state.token,
+      }),
+    },
+  ),
 );
