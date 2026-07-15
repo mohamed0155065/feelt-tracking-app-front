@@ -1,5 +1,5 @@
-export default function page() {
-  return (
-    <div>dashboard</div>
-  )
+import DashboardFeature from '@/features/dashboard';
+
+export default function DashboardPage() {
+  return <DashboardFeature />;
 }
