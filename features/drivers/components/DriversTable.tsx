@@ -1,25 +1,8 @@
 "use client";
-import React, { useEffect, useMemo, useState } from 'react';
-
-// تعريف الـ Interface الخاص بالبيانات المستقبلة لمنع أي خطأ في الـ Type
-interface DriverType {
-  name: string;
-  email: string;
-  phone: string;
-  vehicle: string;
-  status: string;
-}
-
-interface TableProps {
-  drivers: DriverType[];
-  filter: string;
-}
+import React, { useMemo } from 'react';
+import { STATUS_MAP, TableProps } from '../types';
 
 export const DriversTable: React.FC<TableProps> = ({ drivers, filter }) => {
-const STATUS_MAP: Record<string, string> = {
-  online: 'متصل',
-  offline: 'غير متصل',
-};
 
 const filteredDrivers = useMemo(() => {
 
