@@ -45,7 +45,7 @@ export const AddDriverModal: React.FC<AddDriverModalProps> = ({ isOpen, onClose 
           <div>
             <label className="block text-[11px] font-bold text-slate-500 mb-1">تعيين مركبة</label>
             <select className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-500 focus:outline-none focus:border-blue-500 transition-colors appearance-none bg-no-repeat bg-[left_12px_center]">
-              <option>اختر مركبة...</option>
+              <option hidden>اختر مركبة...</option>
               <option>أ ب ج 1234</option>
               <option>د هـ و 5678</option>
             </select>
