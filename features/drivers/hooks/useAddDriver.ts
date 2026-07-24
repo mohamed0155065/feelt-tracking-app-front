@@ -23,12 +23,7 @@ export const useAddDriver = (options?: UseAddDriverOptions) => {
     resolver: zodResolver(driverSchema),
   });
 
-  const {
-    mutate,
-    isPending,
-    isError,
-    error,
-  } = useMutation({
+  const { mutate, isPending, isError, error } = useMutation({
     mutationFn: addDriverApi,
     onSuccess: () => {
       // إعادة جلب قائمة السائقين لكي يظهر السائق الجديد في الجدول فوراً
@@ -40,8 +35,7 @@ export const useAddDriver = (options?: UseAddDriverOptions) => {
       options?.onSuccessCallback?.();
     },
     onError: (err: any) => {
- toast.error("لم يتم إضافة السائق !");
- console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+      toast.error("حصل خطئ, لم يتم إضافة السائق!");
       if (err?.errors && typeof err.errors === "object") {
         Object.entries(err.errors).forEach(([field, messages]) => {
           const messageArray = messages as string[];
@@ -55,7 +49,6 @@ export const useAddDriver = (options?: UseAddDriverOptions) => {
     },
   });
 
-
   const onSubmit = (data: driverSchemaType) => mutate(data);
 
   return {
@@ -66,6 +59,6 @@ export const useAddDriver = (options?: UseAddDriverOptions) => {
     isError,
     error,
     isPending,
-    reset
+    reset,
   };
 };

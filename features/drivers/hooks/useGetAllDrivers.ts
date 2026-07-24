@@ -9,7 +9,7 @@ export const useGetAllDrivers = () => {
   });
 
   return {
-    data,
+    drivers:data,
     ...rest,
   };
 };

@@ -3,12 +3,46 @@ import { useState } from 'react';
 import { DriversTable } from './components/DriversTable';
 import { AddDriverModal } from './components/AddDriverModal';
 import { useGetAllDrivers } from './hooks/useGetAllDrivers';
+import { DriverType } from './types';
+import { UpdateDriverModal } from './components/UpdateDriverModal';
+import { useDeleteDriver } from './hooks/useDeleteDriver';
+import { DeleteConfirmModal } from './components/DeleteConfirmModal';
 
 export default function DriversFeature() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [filter, setFilter] = useState<'all' | 'online' | 'offline'>('all');
+const [driverToDelete, setDriverToDelete] = useState<DriverType | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const { data: drivers, isPending, isError } = useGetAllDrivers();
+  const { drivers, isPending, isError } = useGetAllDrivers();
+
+  const [updatedDriver, setUpdatedDriver] = useState<DriverType | null>(null);
+
+const { deleteDriver, isPending: isDeleting } = useDeleteDriver({
+    onSuccessCallback: () => {
+      setIsDeleteModalOpen(false);
+      setDriverToDelete(null);
+    },
+  });
+
+  const handleOpenDeleteModal = (driver: DriverType) => {
+    setDriverToDelete(driver);
+    setIsDeleteModalOpen(true);
+  };
+
+  // 2. تنفيذ الحذف الفعلي عند الضغط على زر التأكيد داخل المودال
+  const handleConfirmDelete = () => {
+    if (driverToDelete) {
+      deleteDriver(driverToDelete.id);
+    }
+  };
+  const handleUpdateDriver = (driver: DriverType) => {
+    setUpdatedDriver(driver); 
+    setIsUpdateModalOpen(true); 
+  };
+
+
 
   return (
     <div className="p-6 space-y-6 flex-1 overflow-y-auto bg-[#F8FAFC] animate-in fade-in duration-300">
@@ -61,10 +95,31 @@ export default function DriversFeature() {
         </div>
       ) : (
         )} */}
-        <DriversTable drivers={drivers} filter={filter} />
+        <DriversTable drivers={drivers} filter={filter} onUpdateDriver={handleUpdateDriver} onDeleteDriver={handleOpenDeleteModal}/>
 
       {/* المودال */}
       <AddDriverModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+     {updatedDriver && (
+        <UpdateDriverModal
+          isOpen={isUpdateModalOpen}
+          driver={updatedDriver}
+          onClose={() => {
+            setIsUpdateModalOpen(false);
+            setUpdatedDriver(null);
+          }}
+        />
+      )}
+      {/* مودال تأكيد الحذف اللطيف */}
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        driver={driverToDelete}
+        isPending={isDeleting}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDriverToDelete(null);
+        }}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

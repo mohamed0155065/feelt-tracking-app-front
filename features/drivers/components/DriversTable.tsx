@@ -1,10 +1,12 @@
 "use client";
 import React, { useMemo } from 'react';
 import { STATUS_MAP, TableProps } from '../types';
+import { Pencil, Trash2 } from 'lucide-react';
 
-export const DriversTable: React.FC<TableProps> = ({ drivers, filter }) => {
+export const DriversTable: React.FC<TableProps> = ({ drivers, filter, onUpdateDriver, onDeleteDriver }) => {
 
-const filteredDrivers = useMemo(() => {
+
+  const filteredDrivers = useMemo(() => {
 
     if (filter === 'all') return drivers;
 
@@ -23,6 +25,7 @@ const filteredDrivers = useMemo(() => {
             <th className="p-4 text-start">الهاتف</th>
             <th className="p-4 text-start">المركبة</th>
             <th className="p-4 text-start">الحالة</th>
+            <th className="p-4 text-center">الإجراءات</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
@@ -42,6 +45,29 @@ const filteredDrivers = useMemo(() => {
                   }`}>
                   ● {d.status}
                 </span>
+              </td>
+              <td className="p-4">
+                <div className="flex items-center justify-center gap-1.5">
+                  {/* زر التعديل */}
+                  <button
+                    type="button"
+                    title="تعديل"
+                    onClick={() => onUpdateDriver?.(d)}
+                    className="p-1.5 hover:bg-blue-50 text-slate-400 hover:text-blue-600 rounded-lg transition-colors"
+                  >
+                    <Pencil size={15} />
+                  </button>
+
+                  {/* زر الحذف */}
+                  <button
+                    type="button"
+                    title="حذف"
+                    onClick={() => onDeleteDriver?.(d)}
+                    className="p-1.5 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-lg transition-colors"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
