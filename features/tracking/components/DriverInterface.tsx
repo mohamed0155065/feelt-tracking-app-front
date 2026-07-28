@@ -23,7 +23,7 @@ export const DriverInterface: React.FC = () => {
       dir="rtl"
       className="w-full max-w-sm bg-slate-950 border border-slate-800 rounded-[40px] p-6 shadow-2xl text-center flex flex-col justify-between min-h-[580px] animate-in fade-in zoom-in-95 duration-500 relative overflow-hidden"
     >
-      {/* وميض الخريطة الخلفي للتتبع المستمر */}
+
       {isTracking && (
         <div className="absolute inset-0 bg-blue-500/5 animate-pulse pointer-events-none" />
       )}
@@ -60,8 +60,8 @@ export const DriverInterface: React.FC = () => {
             aria-pressed={isTracking}
             aria-label={isTracking ? "إنهاء البث" : "ابدأ التتبع"}
             className={`group w-36 h-36 rounded-full font-bold text-sm transition-all duration-300 shadow-2xl flex flex-col items-center justify-center gap-2 active:scale-90 border select-none ${isTracking
-                ? "bg-red-600 border-red-500 text-white shadow-red-600/30"
-                : "bg-blue-600 border-blue-500 text-white shadow-blue-600/30 hover:bg-blue-700 hover:scale-105"
+              ? "bg-red-600 border-red-500 text-white shadow-red-600/30"
+              : "bg-blue-600 border-blue-500 text-white shadow-blue-600/30 hover:bg-blue-700 hover:scale-105"
               }`}
           >
             <span className="text-2xl transition-transform duration-300 group-hover:rotate-12">
