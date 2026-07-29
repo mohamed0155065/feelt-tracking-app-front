@@ -2,7 +2,12 @@
 import React, { useState } from 'react';
 import { DriversTable } from './components/DriversTable';
 import { AddDriverModal } from './components/AddDriverModal';
-import { DriverPwaView } from './components/Driverpwaview';
+import dynamic from 'next/dynamic';
+
+const DriverPwaView = dynamic(
+  () => import('./components/Driverpwaview').then((mod) => mod.DriverPwaView),
+  { ssr: false }
+);
 
 export default function DriversFeature() {
   const [isModalOpen, setIsModalOpen] = useState(false);
