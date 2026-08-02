@@ -2,8 +2,10 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'admin' | 'driver';
+  role: 'manager' | 'driver';
+  avatar?: string;
 }
+
 
 export interface BaseVehicle {
   id: string;

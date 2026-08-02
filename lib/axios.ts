@@ -1,37 +1,65 @@
-// (axios)اعدادات ال
 import axios from "axios";
 
+/**
+ * Axios Client
+ *
+ * Shared Axios instance used for all HTTP requests.
+ *
+ * Responsibilities:
+ * - Configures the application's base API URL.
+ * - Automatically attaches the authentication token.
+ * - Centralizes request and response configuration.
+ *
+ * Relationship with the application:
+ * - Used by every API function.
+ * - Reads the authentication token from local storage.
+ * - Ensures authenticated requests include the
+ *   Authorization header.
+ */
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
+
+  headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  },
+
+  timeout: 10000,
 });
 
-// هي حاجه وسيطه ل اي بيانات رايحه الي السيرفر
+/**
+ * Request Interceptor
+ *
+ * Automatically attaches the JWT token before
+ * sending any authenticated request.
+ */
 api.interceptors.request.use((config) => {
-  // اجيب معلومات تسجيل الدخول من اللوكال ستوريج
-  const auth = localStorage.getItem("auth-storage");
-  if (auth) {
-    try {
-      // تحويلها من نص الي اوبجيكت
-      let parse = auth ? JSON.parse(auth) : null;
-      // استخراج التوكين
-      const token = parse?.state?.token;
+  const authStorage = localStorage.getItem("auth-storage");
 
-      // اتحقق ان التوكين موجود
-      if (token) {
-        // ابعتو مع كل ارسال بيانات هيحصل علي السيرفر
-        config.headers.authorization = `Bearer ${token}`;
-      }
-    } catch (error) {
-      console.error("Invalid token storage format", error);
-    }
+  if (!authStorage) {
+    return config;
   }
+
+  try {
+    const { state } = JSON.parse(authStorage);
+
+    if (state?.token) {
+      config.headers.Authorization = `Bearer ${state.token}`;
+    }
+  } catch (error) {
+    console.error("Invalid auth storage format.", error);
+  }
+
   return config;
 });
 
-// هي حاجه وسيطه ل اي بيانات راجعه من السيرفر
+/**
+ * Response Interceptor
+ *
+ * Returns successful responses as-is and forwards
+ * failed requests to React Query.
+ */
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    return Promise.reject(error);
-  },
+  (error) => Promise.reject(error)
 );
