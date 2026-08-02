@@ -2,6 +2,12 @@
 import React, { useState } from 'react';
 import { DriversTable } from './components/DriversTable';
 import { AddDriverModal } from './components/AddDriverModal';
+import dynamic from 'next/dynamic';
+
+const DriverPwaView = dynamic(
+  () => import('./components/Driverpwaview').then((mod) => mod.DriverPwaView),
+  { ssr: false }
+);
 
 export default function DriversFeature() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,11 +58,18 @@ export default function DriversFeature() {
         ))}
       </div>
 
-      {/* الجدول */}
+  {/* جدول السائقين */}
       <DriversTable drivers={drivers} filter={filter} />
 
       {/* المودال */}
       <AddDriverModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+
+      {/* واجهة تطبيق السائق PWA اللي عملتيها */}
+      <div className="mt-8 border-t pt-6">
+        <h2 className="text-lg font-bold mb-4 text-slate-700">معاينة واجهة تطبيق السائق (PWA)</h2>
+        <DriverPwaView />
+      </div>
+
     </div>
   );
 }
