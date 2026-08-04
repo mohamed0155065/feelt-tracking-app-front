@@ -1,76 +1,55 @@
 "use client";
+import React from 'react';
+import { Clock } from 'lucide-react';
 
-import { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { HistoryMap } from './components/HistoryMap';
-import { TripTimeline } from './components/TripTimeline';
-import { RoutePoint } from './types';
+/** نمط بيانات نقطة المسار في سجل الرحلة */
+interface TripPoint {
+  time: string;
+  label: string;
+  coords: string;
+  status: 'متصل' | 'خامل' | 'غير متصل';
+}
 
-// 1. الداتا الـ Constant للـ Fallback لو حصل مشكلة في الـ Backend
-const FALLBACK_POINTS = [
-  { time: '08:32', label: 'بدء الرحلة', coords: '24.7136° N, 46.6753° E', status: 'متصل', lat: 24.7136, lng: 46.6753 },
-  { time: '08:47', label: 'حي العليا كوبري 4', coords: '24.7245° N, 46.6891° E', status: 'خامل', lat: 24.7245, lng: 46.6891 },
-  { time: '09:05', label: 'طريق الملك فهد', coords: '24.7389° N, 46.7012° E', status: 'خامل', lat: 24.7389, lng: 46.7012 },
-  { time: '09:22', label: 'مركز المدينة', coords: '24.7512° N, 46.7134° E', status: 'خامل', lat: 24.7512, lng: 46.7134 },
-  { time: '09:41', label: 'حي السليمانية', coords: '24.7634° N, 46.7267° E', status: 'خامل', lat: 24.7634, lng: 46.7267 },
-  { time: '09:58', label: 'طريق الثمامة', coords: '24.7701° N, 46.7389° E', status: 'خامل', lat: 24.7701, lng: 46.7389 },
-  { time: '10:15', label: 'انتهاء الرحلة', coords: '24.7823° N, 46.7512° E', status: 'غير متصل', lat: 24.7823, lng: 46.7512 },
+/** النقاط الافتراضية لسجل المسار التاريخي */
+const TRIP_POINTS: TripPoint[] = [
+  { time: '08:32', label: 'بدء الرحلة', coords: '24.7136° N, 46.6753° E', status: 'متصل' },
+  { time: '08:47', label: 'حي العليا كوبري 4', coords: '24.7245° N, 46.6891° E', status: 'خامل' },
+  { time: '09:05', label: 'طريق الملك فهد', coords: '24.7389° N, 46.7012° E', status: 'خامل' },
+  { time: '09:22', label: 'مركز المدينة', coords: '24.7512° N, 46.7134° E', status: 'خامل' },
+  { time: '09:41', label: 'حي السليمانية', coords: '24.7634° N, 46.7267° E', status: 'خامل' },
+  { time: '09:58', label: 'طريق الثمامة', coords: '24.7701° N, 46.7389° E', status: 'خامل' },
+  { time: '10:15', label: 'انتهاء الرحلة', coords: '24.7823° N, 46.7512° E', status: 'غير متصل' },
 ];
 
+/**
+ * مكون عرض سجل الرحلات ومسار حركة المركبة التاريخي
+ */
 export default function HistoryFeature() {
-  // 2. محاولة جلب الداتا من الباك إند
-  const { data: apiData, isError } = useQuery({
-    queryKey: ['history-points'],
-    queryFn: async () => {
-      const res = await fetch('/api/history');
-      if (!res.ok) throw new Error('Failed to fetch tracking history');
-      return res.json();
-    },
-    retry: 1,
-    staleTime: 5 * 60 * 1000,
-  });
-
-  // 3. Fallback Mechanism: لو فيه إيرور أو الداتا مش موجودة نرجع للـ Constants
-  const activePoints = useMemo(() => {
-    if (isError || !apiData || !Array.isArray(apiData) || apiData.length === 0) {
-      return FALLBACK_POINTS;
-    }
-    return apiData;
-  }, [apiData, isError]);
-
-  // تجهيز الداتا للـ Timeline
-  const timelinePoints: RoutePoint[] = useMemo(() => {
-    return activePoints.map((p) => ({
-      time: p.time,
-      status: p.status,
-      locationName: p.label,
-      coords: p.coords,
-    }));
-  }, [activePoints]);
-
   return (
     <div className="flex-1 flex overflow-hidden animate-in fade-in duration-300 bg-[#F8FAFC]">
-      {/* قسم الخريطة والـ Header */}
+      
+      {/* قسم عرض مسار الرحلة الجغرافي (الخريطة الداكنة) */}
       <div className="flex-1 p-5 flex flex-col gap-4 bg-[#0A0F1D] text-white">
+        {/* هيدر الصفحة وأدوات التصفية */}
         <div className="flex items-center justify-between border-b border-slate-800 pb-3">
           <div>
             <h1 className="text-base font-bold">سجل الرحلات</h1>
             <p className="text-[11px] text-slate-400 mt-0.5">عرض مسار الرحلات السابقة</p>
           </div>
           <div className="flex gap-3 text-xs">
-            <select className="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg text-slate-300 focus:outline-none">
+            <select className="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg text-slate-300 focus:outline-none cursor-pointer">
               <option>اليوم — 2 يوليو 2026</option>
             </select>
-            <select className="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg text-slate-300 font-mono focus:outline-none">
+            <select className="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg text-slate-300 font-mono focus:outline-none cursor-pointer">
               <option>أ ب ج 1234</option>
             </select>
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg font-medium shadow-md transition-colors">
+            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg font-medium shadow-md transition-colors cursor-pointer">
               عرض المسار
             </button>
           </div>
         </div>
 
-        {/* شريط الإحصاءات */}
+        {/* شريط الإحصاءات السريع للرحلة التاريخية */}
         <div className="grid grid-cols-3 gap-4 bg-slate-900/60 p-3 rounded-xl border border-slate-800 text-center text-xs">
           <div>
             <span className="text-slate-500 block mb-0.5">المسافة</span>
@@ -86,14 +65,89 @@ export default function HistoryFeature() {
           </div>
         </div>
 
-        {/* الخريطة الداكنة Mapbox */}
-        <div className="flex-1 border border-slate-800 rounded-xl relative overflow-hidden">
-          <HistoryMap points={activePoints} />
+        {/* محاكاة الخريطة الداكنة مع نقاط الانطلاق والوصول */}
+        <div className="flex-1 bg-[#0F172A] border border-slate-800 rounded-xl relative overflow-hidden flex items-center justify-center">
+          <div className="absolute top-[75%] left-[40%] bg-emerald-500 text-zinc-950 font-bold text-[10px] w-5 h-5 rounded-full flex items-center justify-center shadow-lg z-10">
+            A
+          </div>
+          <div className="absolute top-[25%] left-[75%] bg-red-500 text-white font-bold text-[10px] w-5 h-5 rounded-full flex items-center justify-center shadow-lg z-10">
+            B
+          </div>
+          
+          {/* خط التوصيل المنقط بين النقاط */}
+          <div className="absolute w-[45%] h-[50%] border-t-2 border-l-2 border-dashed border-blue-500/30 rounded-tl-[100px] pointer-events-none" />
         </div>
       </div>
 
-      {/* الـ Timeline الفرعي */}
-      <TripTimeline points={timelinePoints} />
+      {/* لوحة خط السير الجانبي (Timeline) */}
+      <div className="w-80 bg-white border-s border-slate-200 flex flex-col h-full shadow-sm">
+        <div className="p-4 border-b border-slate-100 bg-slate-50/50">
+          <h3 className="font-bold text-xs text-slate-700">مراحل الرحلة</h3>
+          <p className="text-[10px] text-slate-400 mt-0.5">أ ب ج 1234</p>
+        </div>
+
+        {/* قائمة نقاط خط السير */}
+        <div className="p-4 flex-1 overflow-y-auto space-y-5">
+          {TRIP_POINTS.map((p, idx) => {
+            const isFirst = idx === 0;
+            const isLast = idx === TRIP_POINTS.length - 1;
+
+            return (
+              <div
+                key={idx}
+                className="relative flex gap-3 items-start group text-xs animate-in slide-in-from-bottom-2 duration-200"
+              >
+                {/* الخط الرأسي الواصل بين النقاط */}
+                {!isLast && (
+                  <span className="absolute right-[9px] top-5 w-[2px] h-[calc(100%+20px)] bg-slate-100" />
+                )}
+                
+                {/* أيقونة/شارة المحطة */}
+                <div
+                  className={`w-5 h-5 rounded-full border flex items-center justify-center text-[9px] shrink-0 z-10 font-bold ${
+                    isFirst
+                      ? 'bg-emerald-50 border-emerald-500 text-emerald-600'
+                      : isLast
+                      ? 'bg-red-50 border-red-500 text-red-500'
+                      : 'bg-blue-50 border-blue-200 text-blue-500'
+                  }`}
+                >
+                  {isFirst ? (
+                    'A'
+                  ) : isLast ? (
+                    'B'
+                  ) : (
+                    <Clock className="w-2.5 h-2.5" />
+                  )}
+                </div>
+
+                {/* تفاصيل المحطة */}
+                <div className="space-y-1 flex-1 pb-1 border-b border-slate-50">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-slate-800">{p.label}</span>
+                    <span className="text-[10px] text-slate-400 font-mono">{p.time}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <p className="text-[10px] text-slate-400 font-mono">{p.coords}</p>
+                    <span
+                      className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${
+                        p.status === 'متصل'
+                          ? 'bg-emerald-50 text-emerald-600'
+                          : p.status === 'غير متصل'
+                          ? 'bg-red-50 text-red-600'
+                          : 'bg-amber-50 text-amber-600'
+                      }`}
+                    >
+                      {p.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
     </div>
   );
 }
