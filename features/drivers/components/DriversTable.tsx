@@ -1,56 +1,187 @@
-"use client";
-import React from 'react';
+/**
+ * Drivers Table
+ *
+ * Displays all drivers returned from the backend.
+ *
+ * Responsibilities:
+ *
+ * - Renders the drivers list.
+ * - Displays driver information.
+ * - Allows the user to select a driver for editing.
+ * - Allows the user to delete a driver.
+ * - Highlights the driver's active status.
+ *
+ * Relationship with the application:
+ *
+ * - Receives drivers from DriversFeature.
+ * - Calls onEditDriver() when the edit button is clicked.
+ * - Calls onDeleteDriver() when the delete button is clicked.
+ * - Does not communicate directly with the backend.
+ */
 
-// تعريف الـ Interface الخاص بالبيانات المستقبلة لمنع أي خطأ في الـ Type
-interface DriverType {
+"use client";
+
+import React from "react";
+
+export interface Driver {
+  id: number;
   name: string;
   email: string;
   phone: string;
-  vehicle: string;
-  status: string;
+  vehicleId?: string | null;
+  vehicle?: string | null;
+  is_active: boolean;
 }
 
-interface TableProps {
-  drivers: DriverType[];
-  filter: string;
+interface DriversTableProps {
+  drivers: Driver[];
+  filter: "all" | "active" | "inactive";
+  onEditDriver: (driver: Driver) => void;
+  onDeleteDriver: (driver: Driver) => void;
 }
 
-export const DriversTable: React.FC<TableProps> = ({ drivers }) => {
+export const DriversTable: React.FC<DriversTableProps> = ({
+  drivers,
+  onEditDriver,
+  onDeleteDriver,
+}) => {
+  if (drivers.length === 0) {
+    return (
+      <div className="rounded-xl border border-slate-200 bg-white p-10 text-center">
+        <p className="text-sm text-slate-400">
+          لا يوجد سائقون
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full overflow-x-auto border border-slate-200 bg-white rounded-xl shadow-sm">
-      <table className="w-full text-start border-collapse min-w-[700px]">
-        <thead>
-          <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-500 text-[11px] text-start font-bold">
-            <th className="p-4 text-start">السائق</th>
-            <th className="p-4 text-start">البريد الإلكتروني</th>
-            <th className="p-4 text-start">الهاتف</th>
-            <th className="p-4 text-start">المركبة</th>
-            <th className="p-4 text-start">الحالة</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
-          {drivers.map((d, i) => (
-            <tr key={i} className="hover:bg-slate-50/40 transition-colors">
-              <td className="p-4 flex items-center gap-3">
-                <div className="w-7 h-7 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-[10px]">
-                  {d.name[0]}
-                </div>
-                <span className="font-bold text-slate-800">{d.name}</span>
-              </td>
-              <td className="p-4 font-mono text-slate-500 text-[11px]">{d.email}</td>
-              <td className="p-4 font-mono text-slate-500 text-[11px]" dir="ltr">{d.phone}</td>
-              <td className="p-4 font-mono text-slate-700 font-bold">{d.vehicle}</td>
-              <td className="p-4">
-                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                  d.status === 'متصل' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-400'
-                }`}>
-                  ● {d.status}
-                </span>
-              </td>
+    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-x-auto">
+        <table className="w-full text-right">
+
+          <thead>
+            <tr className="border-b border-slate-200 bg-slate-50">
+              <th className="px-4 py-3 text-[11px] font-bold text-slate-500">
+                السائق
+              </th>
+
+              <th className="px-4 py-3 text-[11px] font-bold text-slate-500">
+                البريد الإلكتروني
+              </th>
+
+              <th className="px-4 py-3 text-[11px] font-bold text-slate-500">
+                الهاتف
+              </th>
+
+              <th className="px-4 py-3 text-[11px] font-bold text-slate-500">
+                المركبة
+              </th>
+
+              <th className="px-4 py-3 text-[11px] font-bold text-slate-500">
+                الحالة
+              </th>
+
+              <th className="px-4 py-3 text-[11px] font-bold text-slate-500">
+                الإجراءات
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {drivers.map((driver) => (
+              <tr
+                key={driver.id}
+                className="border-b border-slate-100 transition-colors hover:bg-slate-50/70"
+              >
+
+                {/* Driver */}
+
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-3">
+
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-xs font-bold text-blue-600">
+                      {driver.name?.charAt(0)}
+                    </div>
+
+                    <span className="text-xs font-bold text-slate-700">
+                      {driver.name}
+                    </span>
+
+                  </div>
+                </td>
+
+                {/* Email */}
+
+                <td className="px-4 py-3 text-xs text-slate-500">
+                  {driver.email}
+                </td>
+
+                {/* Phone */}
+
+                <td
+                  className="px-4 py-3 text-xs text-slate-500"
+                  dir="ltr"
+                >
+                  {driver.phone}
+                </td>
+
+                {/* Vehicle */}
+
+                <td className="px-4 py-3 text-xs text-slate-500">
+                  {driver.vehicle ?? driver.vehicleId ?? "—"}
+                </td>
+
+                {/* Status */}
+
+                <td className="px-4 py-3">
+                  {driver.is_active ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-600">
+                      <span>●</span>
+                      نشط
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-400">
+                      <span>●</span>
+                      غير نشط
+                    </span>
+                  )}
+                </td>
+
+                {/* Actions */}
+
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-2">
+
+                    {/* Edit */}
+
+                    <button
+                      type="button"
+                      onClick={() => onEditDriver(driver)}
+                      className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-1.5 text-[10px] font-bold text-blue-600 transition-colors hover:bg-blue-100"
+                    >
+                      تعديل
+                    </button>
+
+                    {/* Delete */}
+
+                    <button
+                      type="button"
+                      onClick={() => onDeleteDriver(driver)}
+                      className="rounded-lg border border-red-100 bg-red-50 px-3 py-1.5 text-[10px] font-bold text-red-600 transition-colors hover:bg-red-100"
+                    >
+                      حذف
+                    </button>
+
+                  </div>
+                </td>
+
+              </tr>
+            ))}
+          </tbody>
+
+        </table>
+      </div>
     </div>
   );
 };

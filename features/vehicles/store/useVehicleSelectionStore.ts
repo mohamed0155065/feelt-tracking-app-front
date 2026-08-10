@@ -26,12 +26,12 @@ interface VehicleSelectionState {
    *
    * null means no vehicle is selected.
    */
-  selectedVehicleId: string | null;
+  selectedVehicleId: number | null;
 
   /**
    * Selects a vehicle by its ID.
    */
-  selectVehicle: (id: string) => void;
+  selectVehicle: (id: number) => void;
 
   /**
    * Clears the current vehicle selection.
