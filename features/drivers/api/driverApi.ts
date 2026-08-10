@@ -1,87 +1,117 @@
-import { driverSchemaType, updateDriverSchemaType } from "@/features/auth/schemas";
-import { DriverType } from "../types";
+/**
+ * Driver API
+ *
+ * Provides client-side functions for communicating with
+ * the application's driver API endpoints.
+ *
+ * Responsibilities:
+ *
+ * - Sends HTTP requests related to drivers.
+ * - Provides functions for creating and fetching drivers.
+ * - Handles API responses and request errors.
+ *
+ * Relationship with the application:
+ *
+ * - Called by driver-related React Query hooks.
+ * - Communicates with the Next.js API routes.
+ * - Does not contain UI or React Query logic.
+ * - Does not communicate directly with Laravel.
+ */
 
-export const getAllDriversApi = async (): Promise<DriverType[]> => {
-  const res = await fetch("/api/auth/drivers", {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-  });
+export interface DriverPayload {
+    name?: string;
+    email?: string;
+    phone?: string;
+    password?: string;
+    vehicleId?: string;
+    is_active?: boolean;
+}
 
-  const body = await res.json();
+/**
+ * Fetches all drivers.
+ */
+export async function getAllDrivers() {
+    const response = await fetch("/api/drivers", {
+        method: "GET",
+        credentials: "include",
+    });
 
-  if (!res.ok) {
-    throw new Error(body.message || "حدث خطأ أثناء جلب بيانات السائقين");
-  }
+    const result = await response.json();
 
-  return body.data;
-};
+    console.log("🔥 DRIVERS API RESPONSE:", result);
 
-export const getDriverByIdApi =async (id:string):Promise<DriverType>=>{
+    if (!response.ok || !result.success) {
+        throw new Error(
+            result?.message || "Failed to fetch drivers"
+        );
+    }
 
-  const res=await fetch(`/api/auth/drivers/${id}`,{
-    method:"GET",
-    headers:{"Content-Type":"application/json"},
-    credentials:"include"
-  })
+    return result;
+}
+/**
+ * Creates a new driver.
+ */
+export async function addDriver(
+    data: DriverPayload
+) {
+    const response = await fetch("/api/drivers", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(data),
+    });
 
-  const body=await res.json()
+    const result = await response.json();
 
-  if (!res.ok) {
-    throw new Error(body.message || "حدث خطأ أثناء جلب بيانات السائق");
-  }
+    if (!response.ok) {
+        throw new Error(
+            result?.message || "Failed to add driver"
+        );
+    }
 
-  return body.data;
+    return result;
 
-} 
-export const addDriverApi = async (
-  driverData: driverSchemaType,
-): Promise<DriverType> => {
-  const res = await fetch("/api/auth/drivers", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(driverData),
-    credentials: "include",
-  });
 
-  const body = await res.json().catch(() => null);
+}
+export async function updateDriver(
+    id: number,
+    data: DriverPayload
+) {
+    const response = await fetch(`/api/drivers/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(data),
+    });
 
-  if (!res.ok) {
-    throw new Error(body.message || "حدث خطأ أثناء اضافه بيانات السائقين");
-  }
-  return body.data;
-};
+    const result = await response.json();
 
-export const updateDriverApi = async (id:string,
-  driverData: updateDriverSchemaType,
-): Promise<DriverType> => {
-  const res = await fetch(`/api/auth/drivers/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(driverData),
-    credentials: "include",
-  });
+    if (!response.ok || !result.success) {
+        throw new Error(
+            result?.message || "Failed to update driver"
+        );
+    }
 
-  const body = await res.json().catch(() => null);
+    return result;
+}
 
-  if (!res.ok) {
-    throw new Error(body.message || "حدث خطأ أثناء تعديل بيانات السائق");
-  }
-  return body.data;
-};
+export async function deleteDriver(id: number) {
+    const response = await fetch(`/api/drivers/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+    });
 
-export const deleteDriverApi = async (id: string): Promise<DriverType> => {
-  const res = await fetch(`/api/auth/drivers/${id}`, {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-  });
+    const result = await response.json();
 
-  const body = await res.json().catch(() => null);
+    if (!response.ok || !result.success) {
+        throw new Error(
+            result?.message || "Failed to delete driver"
+        );
+    }
 
-  if (!res.ok) {
-    throw new Error(body?.message || "حدث خطأ أثناء حذف بيانات السائق");
-  }
-
-  return body?.data;
-};
+    return result;
+}

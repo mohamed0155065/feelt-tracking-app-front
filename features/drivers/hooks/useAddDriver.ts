@@ -1,64 +1,36 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { driverSchema, driverSchemaType } from "@/features/auth/schemas";
+/**
+ * Add Driver Mutation Hook
+ *
+ * Manages the mutation for creating a new driver.
+ *
+ * Responsibilities:
+ *
+ * - Executes the add-driver request.
+ * - Manages loading, success, and error states.
+ * - Invalidates the drivers query after successful creation.
+ *
+ * Relationship with the application:
+ *
+ * - Uses addDriver() from driverApi.ts.
+ * - Uses React Query mutations.
+ * - Triggers a fresh drivers fetch after successful creation.
+ */
+
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { addDriverApi } from "../api/driverApi";
-import toast from "react-hot-toast";
+import { addDriver } from "../api/driverApi";
 
-// Callback لإغلاق المودال عند النجاح
-interface UseAddDriverOptions {
-  onSuccessCallback?: () => void;
-}
+export function useAddDriver() {
+    const queryClient = useQueryClient();
 
-export const useAddDriver = (options?: UseAddDriverOptions) => {
-  const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: addDriver,
 
-  const {
-    register,
-    handleSubmit,
-    setError,
-    reset,
-    formState: { errors },
-  } = useForm<driverSchemaType>({
-    resolver: zodResolver(driverSchema),
-  });
-
-  const { mutate, isPending, isError, error } = useMutation({
-    mutationFn: addDriverApi,
-    onSuccess: () => {
-      // إعادة جلب قائمة السائقين لكي يظهر السائق الجديد في الجدول فوراً
-      queryClient.invalidateQueries({ queryKey: ["drivers"] });
-
-      toast.success("تمت إضافة السائق بنجاح!");
-      reset();
-
-      options?.onSuccessCallback?.();
-    },
-    onError: (err: any) => {
-      toast.error("حصل خطئ, لم يتم إضافة السائق!");
-      if (err?.errors && typeof err.errors === "object") {
-        Object.entries(err.errors).forEach(([field, messages]) => {
-          const messageArray = messages as string[];
-          if (messageArray && messageArray.length > 0) {
-            setError(field as keyof driverSchemaType, {
-              message: messageArray[0],
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["drivers"],
             });
-          }
-        });
-      }
-    },
-  });
-
-  const onSubmit = (data: driverSchemaType) => mutate(data);
-
-  return {
-    register,
-    handleSubmit,
-    onSubmit,
-    errors,
-    isError,
-    error,
-    isPending,
-    reset,
-  };
-};
+        },
+    });
+}

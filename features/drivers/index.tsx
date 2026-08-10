@@ -1,124 +1,309 @@
+/**
+ * Drivers Feature
+ *
+ * Main container for the drivers management feature.
+ *
+ * Responsibilities:
+ * - Fetches drivers from the API.
+ * - Normalizes backend is_active values.
+ * - Filters drivers by active/inactive status.
+ * - Displays driver counts.
+ * - Controls Add/Edit/Delete UI state.
+ * - Passes drivers and actions to the table.
+ */
+
 "use client";
-import { useState } from 'react';
-import { DriversTable } from './components/DriversTable';
-import { AddDriverModal } from './components/AddDriverModal';
-import { useGetAllDrivers } from './hooks/useGetAllDrivers';
-import { DriverType } from './types';
-import { UpdateDriverModal } from './components/UpdateDriverModal';
-import { useDeleteDriver } from './hooks/useDeleteDriver';
-import { DeleteConfirmModal } from './components/DeleteConfirmModal';
+
+import React, { useState } from "react";
+
+import { DriversTable } from "./components/DriversTable";
+import { AddDriverModal } from "./components/AddDriverModal";
+import { DeleteDriverDialog } from "./components/DeleteDriverDialog";
+import { EditDriverModal } from "./components/EditDriverModal";
+
+import { useGetAllDrivers } from "./hooks/useGetAllDrivers";
+
+import type { Driver } from "./components/DriversTable";
 
 export default function DriversFeature() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const [filter, setFilter] = useState<'all' | 'online' | 'offline'>('all');
-const [driverToDelete, setDriverToDelete] = useState<DriverType | null>(null);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  /* ----------------------------------------
+   * UI State
+   * ---------------------------------------- */
 
-  const { drivers, isPending, isError } = useGetAllDrivers();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  const [updatedDriver, setUpdatedDriver] = useState<DriverType | null>(null);
+  const [selectedDriver, setSelectedDriver] =
+    useState<Driver | null>(null);
 
-const { deleteDriver, isPending: isDeleting } = useDeleteDriver({
-    onSuccessCallback: () => {
-      setIsDeleteModalOpen(false);
-      setDriverToDelete(null);
-    },
+  const [driverToDelete, setDriverToDelete] =
+    useState<Driver | null>(null);
+
+  const [filter, setFilter] = useState<
+    "all" | "online" | "offline"
+  >("all");
+
+  /* ----------------------------------------
+   * Fetch Drivers
+   * ---------------------------------------- */
+
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+  } = useGetAllDrivers();
+
+  /**
+   * Backend returns:
+   *
+   * is_active: 1
+   * is_active: 0
+   *
+   * Normalize it once here so the rest of
+   * the frontend works with boolean values.
+   */
+  const drivers: Driver[] = (data?.data ?? []).map(
+    (driver: Driver) => ({
+      ...driver,
+      is_active: Number(driver.is_active) === 1,
+    })
+  );
+
+  /* ----------------------------------------
+   * Driver Counts
+   * ---------------------------------------- */
+
+  const activeCount = drivers.filter(
+    (driver) => driver.is_active === true
+  ).length;
+
+  const inactiveCount = drivers.filter(
+    (driver) => driver.is_active === false
+  ).length;
+
+  /* ----------------------------------------
+   * Filter Drivers
+   * ---------------------------------------- */
+
+  const filteredDrivers = drivers.filter((driver) => {
+    if (filter === "all") {
+      return true;
+    }
+
+    if (filter === "online") {
+      return driver.is_active === true;
+    }
+
+    if (filter === "offline") {
+      return driver.is_active === false;
+    }
+
+    return true;
   });
 
-  const handleOpenDeleteModal = (driver: DriverType) => {
-    setDriverToDelete(driver);
-    setIsDeleteModalOpen(true);
-  };
-
-  // 2. تنفيذ الحذف الفعلي عند الضغط على زر التأكيد داخل المودال
-  const handleConfirmDelete = () => {
-    if (driverToDelete) {
-      deleteDriver(driverToDelete.id);
-    }
-  };
-  const handleUpdateDriver = (driver: DriverType) => {
-    setUpdatedDriver(driver); 
-    setIsUpdateModalOpen(true); 
-  };
-
-
+  /* ----------------------------------------
+   * Render
+   * ---------------------------------------- */
 
   return (
-    <div className="p-6 space-y-6 flex-1 overflow-y-auto bg-[#F8FAFC] animate-in fade-in duration-300">
-      
-      {/* الجزء العلوي - الهيدر */}
-      <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm">
+    <div
+      className="space-y-4"
+      dir="rtl"
+    >
+      {/* ----------------------------------------
+       * Header
+       * ---------------------------------------- */}
+
+      <div className="flex items-center justify-between rounded-xl border border-slate-200/70 bg-white px-5 py-4 shadow-sm">
         <div>
-          <h1 className="text-base font-bold text-slate-800">السائقون</h1>
-          {/* إظهار عدد السائقين بأمان باستخدام Optional Chaining أو القيمة الافتراضية */}
-          <p className="text-[11px] text-slate-400 mt-0.5">
-            سائق مسجل {drivers?.length || 0}
+          <h1 className="text-base font-bold text-slate-800">
+            السائقون
+          </h1>
+
+          <p className="mt-1 text-[11px] text-slate-400">
+            {drivers.length} سائق مسجل
           </p>
         </div>
-        
-        <button 
-          onClick={() => setIsModalOpen(true)}
+
+        <button
           type="button"
-          className="bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs px-4 py-2 rounded-lg shadow-sm active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer relative z-10"
+          onClick={() => setIsAddModalOpen(true)}
+          className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition-all hover:bg-blue-700 active:scale-[0.98]"
         >
-          <span>+</span> إضافة سائق جديد
+          <span className="text-sm leading-none">
+            +
+          </span>
+
+          إضافة سائق جديد
         </button>
       </div>
 
-      {/* الـ Tabs لتصفية البيانات */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-px">
-        {(['all', 'online', 'offline'] as const).map((tab) => (
+      {/* ----------------------------------------
+       * Statistics / Filters
+       * ---------------------------------------- */}
+
+      <div className="rounded-xl border border-slate-200/70 bg-white px-4">
+        <div className="flex items-center gap-2 overflow-x-auto">
+
+          {/* All */}
+
           <button
-            key={tab}
-            onClick={() => setFilter(tab)}
-            className={`px-4 py-2 text-xs font-medium border-b-2 transition-all ${
-              filter === tab 
-                ? 'border-blue-500 text-blue-600 font-bold' 
-                : 'border-transparent text-slate-400 hover:text-slate-600'
-            }`}
+            type="button"
+            onClick={() => setFilter("all")}
+            className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs transition-colors ${filter === "all"
+                ? "border-blue-600 font-bold text-blue-600"
+                : "border-transparent font-medium text-slate-400 hover:text-slate-600"
+              }`}
           >
-            {tab === 'all' ? 'الكل' : tab === 'online' ? 'متصل' : 'غير متصل'}
+            <span>الكل</span>
+
+            <span
+              className={`rounded-full px-1.5 py-0.5 text-[9px] ${filter === "all"
+                  ? "bg-blue-50 text-blue-600"
+                  : "bg-slate-100 text-slate-400"
+                }`}
+            >
+              {drivers.length}
+            </span>
           </button>
-        ))}
+
+          {/* Active */}
+
+          <button
+            type="button"
+            onClick={() => setFilter("online")}
+            className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs transition-colors ${filter === "online"
+                ? "border-blue-600 font-bold text-blue-600"
+                : "border-transparent font-medium text-slate-400 hover:text-slate-600"
+              }`}
+          >
+            <span>نشط</span>
+
+            <span
+              className={`rounded-full px-1.5 py-0.5 text-[9px] ${filter === "online"
+                  ? "bg-blue-50 text-blue-600"
+                  : "bg-slate-100 text-slate-400"
+                }`}
+            >
+              {activeCount}
+            </span>
+          </button>
+
+          {/* Inactive */}
+
+          <button
+            type="button"
+            onClick={() => setFilter("offline")}
+            className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs transition-colors ${filter === "offline"
+                ? "border-blue-600 font-bold text-blue-600"
+                : "border-transparent font-medium text-slate-400 hover:text-slate-600"
+              }`}
+          >
+            <span>غير نشط</span>
+
+            <span
+              className={`rounded-full px-1.5 py-0.5 text-[9px] ${filter === "offline"
+                  ? "bg-blue-50 text-blue-600"
+                  : "bg-slate-100 text-slate-400"
+                }`}
+            >
+              {inactiveCount}
+            </span>
+          </button>
+
+        </div>
       </div>
 
-      {/* عرض الـ Spinner أثناء التحميل، أو الخطأ، أو الجدول عند نجاح البيانات */}
-      {/* {isPending ? (
-        <div className="flex flex-col items-center justify-center min-h-[300px] w-full gap-3 bg-white rounded-xl border border-slate-200/60 p-8 shadow-sm">
-          <div className="w-9 h-9 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-xs font-medium text-slate-500">جاري تحميل بيانات السائقين...</p>
-        </div>
-      ) : isError ? (
-        <div className="p-8 text-center text-red-500 text-xs bg-white rounded-xl border border-red-100 shadow-sm">
-          حدث خطأ أثناء جلب البيانات، يرجى إعادة المحاولة لاحقاً.
-        </div>
-      ) : (
-        )} */}
-        <DriversTable drivers={drivers} filter={filter} onUpdateDriver={handleUpdateDriver} onDeleteDriver={handleOpenDeleteModal}/>
+      {/* ----------------------------------------
+       * Loading
+       * ---------------------------------------- */}
 
-      {/* المودال */}
-      <AddDriverModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-     {updatedDriver && (
-        <UpdateDriverModal
-          isOpen={isUpdateModalOpen}
-          driver={updatedDriver}
-          onClose={() => {
-            setIsUpdateModalOpen(false);
-            setUpdatedDriver(null);
-          }}
-        />
+      {isLoading && (
+        <div className="rounded-xl border border-slate-200/70 bg-white px-6 py-16 text-center">
+          <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-slate-200 border-t-blue-600" />
+
+          <p className="text-xs font-medium text-slate-400">
+            جاري تحميل السائقين...
+          </p>
+        </div>
       )}
-      {/* مودال تأكيد الحذف اللطيف */}
-      <DeleteConfirmModal
-        isOpen={isDeleteModalOpen}
+
+      {/* ----------------------------------------
+       * Error
+       * ---------------------------------------- */}
+
+      {isError && (
+        <div className="rounded-xl border border-red-100 bg-red-50 px-6 py-8 text-center">
+          <p className="text-xs font-medium text-red-600">
+            {error instanceof Error
+              ? error.message
+              : "حدث خطأ أثناء تحميل السائقين"}
+          </p>
+        </div>
+      )}
+
+      {/* ----------------------------------------
+       * Drivers
+       * ---------------------------------------- */}
+
+      {!isLoading && !isError && (
+        <>
+          {filteredDrivers.length > 0 ? (
+            <DriversTable
+              drivers={filteredDrivers}
+              filter={filter}
+              onEditDriver={(driver) => {
+                setSelectedDriver(driver);
+              }}
+              onDeleteDriver={(driver) => {
+                setDriverToDelete(driver);
+              }}
+            />
+          ) : (
+            <div className="rounded-xl border border-slate-200/70 bg-white px-6 py-16 text-center shadow-sm">
+              <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+                —
+              </div>
+
+              <h3 className="text-sm font-bold text-slate-700">
+                لا يوجد سائقون
+              </h3>
+
+              <p className="mt-1 text-[11px] text-slate-400">
+                لا يوجد سائقون ضمن هذا التصنيف حاليًا.
+              </p>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ----------------------------------------
+       * Add Driver Modal
+       * ---------------------------------------- */}
+
+      <AddDriverModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+      />
+
+      {/* ----------------------------------------
+       * Edit Driver Modal
+       * ---------------------------------------- */}
+
+      <EditDriverModal
+        isOpen={selectedDriver !== null}
+        driver={selectedDriver}
+        onClose={() => setSelectedDriver(null)}
+      />
+
+      {/* ----------------------------------------
+       * Delete Driver Dialog
+       * ---------------------------------------- */}
+
+      <DeleteDriverDialog
+        isOpen={driverToDelete !== null}
         driver={driverToDelete}
-        isPending={isDeleting}
-        onClose={() => {
-          setIsDeleteModalOpen(false);
-          setDriverToDelete(null);
-        }}
-        onConfirm={handleConfirmDelete}
+        onClose={() => setDriverToDelete(null)}
       />
     </div>
   );

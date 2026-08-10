@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { serverFetch, ApiError } from "./server-fetch";
+import { serverFetch, ApiError } from "../../../../lib/server-fetch";
 import type { LoginResponseData } from "@/features/auth/types";
 
 const bodySchema = z.object({
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-        const data = await serverFetch<LoginResponseData>("/api/auth/login", {
+        const data = await serverFetch<LoginResponseData>("/auth/login", {
             method: "POST",
             body: JSON.stringify(parsed.data),
         });

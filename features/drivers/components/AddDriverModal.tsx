@@ -1,83 +1,137 @@
-"use client";
-import React from 'react';
-import { useAddDriver } from '../hooks/useAddDriver';
+/**
+ * Add Driver Modal
+ *
+ * Displays the modal used to create a new driver.
+ *
+ * Responsibilities:
+ *
+ * - Controls the add-driver modal container.
+ * - Uses useAddDriver() to create the driver.
+ * - Provides initial form data to DriverForm.
+ * - Closes the modal after successful creation.
+ *
+ * Relationship with the application:
+ *
+ * - Uses DriverForm for the UI.
+ * - Uses useAddDriver() for the mutation.
+ * - Does not communicate directly with Laravel.
+ */
 
+"use client";
+
+import React from "react";
+import { useAddDriver } from "../hooks/useAddDriver";
+import {
+  DriverForm,
+  type DriverFormData,
+} from "./DriverForm"
 interface AddDriverModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const AddDriverModal: React.FC<AddDriverModalProps> = ({ isOpen, onClose }) => {
+export const AddDriverModal: React.FC<
+  AddDriverModalProps
+> = ({ isOpen, onClose }) => {
+  const addDriver = useAddDriver();
 
-  const { register, handleSubmit, onSubmit, errors, isPending,reset } = useAddDriver({
-    onSuccessCallback: onClose,
-  });
-  const handleClose = () => {
-    reset(); // مسح البيانات والأخطاء السابقة
-    onClose();
+  if (!isOpen) {
+    return null;
+  }
+
+  const handleSubmit = (data: DriverFormData) => {
+    addDriver.mutate(data, {
+      onSuccess: () => {
+        onClose();
+      },
+    });
   };
-  if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl relative border border-slate-100 animate-in zoom-in-95 duration-200 text-start font-cairo">
-        
-        {/* زر الإغلاق العلوي */}
-        <button onClick={onClose} className="absolute top-5 left-5 text-slate-400 hover:text-slate-600 text-base transition-colors">
-          ✕
-        </button>
+    <div
+      className="
+        fixed inset-0 z-50
+        flex items-center justify-center
+        bg-slate-950/45
+        px-4 py-6
+        backdrop-blur-[3px]
+      "
+      dir="rtl"
+      onMouseDown={onClose}
+    >
+      <div
+        className="
+          relative
+          w-full max-w-lg
+          overflow-hidden
+          rounded-2xl
+          border border-slate-200
+          bg-white
+          shadow-2xl
+          shadow-slate-950/10
+        "
+        onMouseDown={(event) =>
+          event.stopPropagation()
+        }
+      >
+        {/* Header */}
 
-        <h3 className="text-base font-bold text-slate-900">إضافة سائق جديد</h3>
-        <p className="text-[11px] text-slate-400 mt-0.5">أدخل بيانات السائق الجديد</p>
+        <div className="border-b border-slate-100 px-6 py-5">
 
-        <form className="mt-5 space-y-4" onSubmit={handleSubmit(onSubmit)}>
-          <div>
-            <label className="block text-[11px] font-bold text-slate-500 mb-1">الاسم الكامل</label>
-            <input type="text" placeholder="محمد عبدالله" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-blue-500 transition-colors"
-             {...register("name")}/>
-             {errors.name && <p className="text-red-500 text-[11px] mt-1">{errors.name.message}</p>}
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={addDriver.isPending}
+            className="
+              absolute left-5 top-5
+              flex h-8 w-8
+              items-center justify-center
+              rounded-lg
+              text-slate-400
+              transition-all
+              hover:bg-slate-100
+              hover:text-slate-600
+              disabled:cursor-not-allowed
+              disabled:opacity-50
+            "
+          >
+            ×
+          </button>
+
+          <div className="flex items-center gap-2.5">
+
+            <div
+              className="
+                flex h-9 w-9
+                items-center justify-center
+                rounded-xl
+                bg-blue-50
+                text-blue-600
+                ring-1 ring-blue-100
+              "
+            >
+              +
+            </div>
+
+            <div>
+              <h2 className="text-sm font-bold text-slate-900">
+                إضافة سائق جديد
+              </h2>
+
+              <p className="mt-0.5 text-[11px] text-slate-400">
+                أدخل بيانات السائق لإضافته إلى النظام
+              </p>
+            </div>
           </div>
+        </div>
 
-          <div>
-            <label className="block text-[11px] font-bold text-slate-500 mb-1">البريد الإلكتروني</label>
-            <input type="email" placeholder="driver@fleet.sa" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-blue-500 transition-colors font-mono text-right" dir="ltr" 
-            {...register("email")}/>
-            {errors.email && <p className="text-red-500 text-[11px] mt-1">{errors.email.message}</p>}
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-bold text-slate-500 mb-1">رقم الهاتف</label>
-            <input type="text" placeholder="+966 50 000 0000" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-blue-500 transition-colors font-mono text-right" dir="ltr" 
-            {...register("phone")}/>{errors.phone && <p className="text-red-500 text-[11px] mt-1">{errors.phone.message}</p>}
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-bold text-slate-500 mb-1">كلمة المرور</label>
-            <input type="password" placeholder="••••••••" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-blue-500 transition-colors font-mono" 
-            {...register("password")}/>{errors.password && <p className="text-red-500 text-[11px] mt-1">{errors.password.message}</p>}
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-bold text-slate-500 mb-1">تعيين مركبة</label>
-            <select className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-500 focus:outline-none focus:border-blue-500 transition-colors appearance-none bg-no-repeat bg-[left_12px_center]"
-            {...register("vehicle")} defaultValue="">
-              <option value="" hidden>اختر مركبة...</option>
-              <option>أ ب ج 1234</option>
-              <option>د هـ و 5678</option>
-            </select>
-            {errors.vehicle && <p className="text-red-500 text-[11px] mt-1">{errors.vehicle.message}</p>}
-          </div>
-
-          {/* أزرار الإجراءات */}
-          <div className="flex gap-3 pt-3">
-            <button type="submit" disabled={isPending} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-3 rounded-xl shadow-md shadow-blue-500/10 active:scale-98 transition-all">
-               {isPending ? "جاري الإضافة..." : " إضافة السائق"}
-            </button>
-            <button type="button" onClick={handleClose} className="flex-1 bg-white hover:bg-slate-50 text-slate-500 border border-slate-200 font-bold text-xs py-3 rounded-xl active:scale-98 transition-all">
-              إلغاء
-            </button>
-          </div>
-        </form>
+        <DriverForm
+          mode="add"
+          isPending={addDriver.isPending}
+          error={addDriver.error}
+          onSubmit={handleSubmit}
+          onCancel={onClose}
+        />
       </div>
     </div>
   );

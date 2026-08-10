@@ -1,15 +1,31 @@
+/**
+ * Get All Drivers Query Hook
+ *
+ * Manages fetching and caching the drivers list.
+ *
+ * Responsibilities:
+ *
+ * - Fetches all drivers.
+ * - Manages loading and error states.
+ * - Caches driver data using React Query.
+ * - Refetches drivers when the query is invalidated.
+ *
+ * Relationship with the application:
+ *
+ * - Uses getAllDrivers() from driverApi.ts.
+ * - Provides driver data to the UI.
+ * - Shares the ["drivers"] query cache with driver mutations.
+ */
+
+"use client";
+
 import { useQuery } from "@tanstack/react-query";
-import { getAllDriversApi } from "../api/driverApi";
-import { drivers } from "../const";
+import { getAllDrivers } from "../api/driverApi";
 
-export const useGetAllDrivers = () => {
-  const { data = drivers, ...rest } = useQuery({
-    queryKey: ["drivers"], 
-    queryFn: getAllDriversApi,
-  });
+export function useGetAllDrivers() {
+    return useQuery({
+        queryKey: ["drivers"],
 
-  return {
-    drivers:data,
-    ...rest,
-  };
-};
+        queryFn: getAllDrivers,
+    });
+}

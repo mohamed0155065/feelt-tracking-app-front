@@ -14,7 +14,7 @@
  * - Renders the LogoutButton component.
  */
 
-import { ConnectionStatus } from "../../dashboard/";
+import ConnectionStatus from "../../dashboard/";
 import { LogoutButton } from "../logout-button";
 
 import { User } from "@/lib/types";

@@ -1,5 +1,5 @@
 
-import { Pick } from "typescript";
+import Pick from "typescript";
 import { Home, Users, Truck, MapPinned } from "lucide-react";
 
 import { SidebarNavLink } from "./SidebarNavLink";

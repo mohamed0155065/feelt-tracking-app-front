@@ -1,3 +1,26 @@
+
+/**
+ * Server API Client
+ *
+ * Provides a centralized server-side HTTP client for communicating
+ * with the Laravel backend.
+ *
+ * Responsibilities:
+ *
+ * - Builds backend API requests.
+ * - Adds authentication headers when required.
+ * - Handles backend responses.
+ * - Normalizes API errors.
+ * - Provides a consistent interface for server-side API calls.
+ *
+ * Relationship with the application:
+ *
+ * - Used by Next.js API route handlers.
+ * - Communicates directly with the Laravel backend.
+ * - Keeps backend communication logic outside individual routes.
+ * - Runs exclusively on the server.
+ */
+
 const API_BASE_URL = process.env.API_BASE_URL;
 
 export class ApiError extends Error {
