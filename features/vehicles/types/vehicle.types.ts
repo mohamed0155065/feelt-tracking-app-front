@@ -1,73 +1,52 @@
 /**
- * Driver
+ * Vehicle Types
  *
- * Represents the driver assigned to a vehicle.
- *
- * Relationship with the application:
- * - Nested inside the Vehicle interface.
- * - Used by Vehicle List, Vehicle Details,
- *   and any component that displays driver information.
- */
-export interface Driver {
-    id: number;
-    name: string;
-    phone: string;
-}
-
-/**
- * Vehicle Status
- *
- * Represents all valid vehicle states returned
- * by the backend.
- */
-export type VehicleStatus =
-    | "active"
-    | "idle"
-    | "offline";
-
-/**
- * Vehicle Type
- *
- * Represents all supported vehicle categories.
- */
-export type VehicleType =
-    | "car"
-    | "truck"
-    | "van"
-    | "motorcycle";
-
-/**
- * Vehicle
- *
- * Represents a single vehicle returned from the backend.
+ * Defines the TypeScript models used throughout
+ * the Vehicles feature.
  *
  * Responsibilities:
- * - Defines the vehicle data model.
- * - Provides type safety across the Vehicles feature.
+ *
+ * - Defines the structure of a vehicle.
+ * - Defines the data required to create a vehicle.
+ * - Defines the data required to update a vehicle.
+ * - Defines the relationship between a vehicle and its driver.
  *
  * Relationship with the application:
- * - Used by React Query.
- * - Used by Vehicle List.
- * - Used by Vehicle Details.
- * - Used by Map.
- * - Used by Live Tracking.
+ *
+ * - Used by API services for type safety.
+ * - Used by React Query hooks.
+ * - Used by Vehicle UI components.
+ *
+ * This file contains types only.
+ * It does not communicate with the backend.
  */
-export interface Vehicle {
+
+export type Vehicle = {
     id: number;
-
-    driver_id: number | null;
-
     plate_number: string;
-
     model: string;
+    year?: number;
+    driver_id: number | null;
+    driver?: {
+        id: number;
+        name: string;
+    } | null;
+};
 
-    type: VehicleType;
+export type CreateVehiclePayload = {
+    plate_number: string;
+    model: string;
+    year?: number;
+};
 
-    status: VehicleStatus;
+export type UpdateVehiclePayload = {
+    id: number;
+    plate_number: string;
+    model: string;
+    year?: number;
+};
 
-    year: number;
-
-    created_at: string | null;
-
-    driver: Driver | null;
-}
+export type AssignDriverPayload = {
+    vehicleId: number;
+    driverId: number;
+};

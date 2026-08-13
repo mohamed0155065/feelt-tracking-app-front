@@ -1,3 +1,34 @@
+/**
+ * Login API Route
+ *
+ * Acts as the server-side authentication boundary between
+ * the Next.js application and the Laravel Backend.
+ *
+ * Responsibilities:
+ *
+ * - Validates login input using Zod.
+ * - Sends valid credentials to the Backend.
+ * - Receives the authenticated user, role, and token.
+ * - Stores authentication information in HttpOnly cookies.
+ * - Returns a safe response to the Client without exposing
+ *   the authentication token to browser JavaScript.
+ *
+ * Relationship with the application:
+ *
+ * - The Login UI sends credentials to this route.
+ * - This route communicates with the Laravel Backend through serverFetch.
+ * - The Backend remains the source of truth for authentication
+ *   and the user's actual role.
+ * - The Middleware later reads the cookies created here to perform
+ *   Frontend route protection.
+ *
+ * Security:
+ *
+ * - The authentication token is stored in an HttpOnly cookie.
+ * - The role cookie is used for Frontend route protection only.
+ * - Backend APIs must independently validate the user's permissions.
+ */
+
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { serverFetch, ApiError } from "../../../../lib/server-fetch";
@@ -47,14 +78,17 @@ export async function POST(request: NextRequest) {
             path: "/",
             maxAge: 60 * 60 * 24 * 7,
         });
-        console.log("Access Token:", data.token);
-        console.log("Length:", data.token?.length);
+
+        response.cookies.set("role", data.user.role, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/",
+            maxAge: 60 * 60 * 24 * 7,
+        });
+
         return response;
     } catch (err) {
-        console.error("========== LOGIN ERROR ==========");
-        console.error(err);
-        console.error("=================================");
-
         if (err instanceof ApiError) {
             return NextResponse.json(
                 {
@@ -72,7 +106,9 @@ export async function POST(request: NextRequest) {
             {
                 success: false,
                 message:
-                    err instanceof Error ? err.message : "حدث خطأ غير متوقع",
+                    err instanceof Error
+                        ? err.message
+                        : "حدث خطأ غير متوقع",
                 errors: {},
             },
             {

@@ -1,90 +1,85 @@
 "use client";
 
 import { useVehicles } from "../hooks/useVehicles";
-import { useVehicleSelectionStore } from "../store/useVehicleSelectionStore";
+import { AssignDriverDialog } from "./AssignDriverDialog";
 
 /**
  * Vehicle List
  *
- * Displays all vehicles returned from the backend.
+ * Displays all vehicles available to the authenticated admin.
  *
  * Responsibilities:
- * - Fetches the vehicles.
- * - Renders the vehicles list.
- * - Allows the user to select a vehicle.
- * - Highlights the selected vehicle.
+ *
+ * - Fetches vehicles using useVehicles().
+ * - Displays loading state.
+ * - Displays error state.
+ * - Displays empty state.
+ * - Renders vehicle information.
+ * - Provides actions for vehicle management.
  *
  * Relationship with the application:
- * - Reads vehicles using useVehicles().
- * - Updates the selected vehicle using
- *   useVehicleSelectionStore().
- * - Map automatically reacts when the selected
- *   vehicle changes.
+ *
+ * - Uses useVehicles() for server state.
+ * - Uses AssignDriverDialog for driver assignment.
+ * - Does not communicate directly with the backend.
  */
-export function VehicleList() {
+
+export default function VehicleList() {
     const {
-        data: vehicles = [],
+        data: vehicles,
         isLoading,
         isError,
-        error,
     } = useVehicles();
 
-    const {
-        selectedVehicleId,
-        selectVehicle,
-    } = useVehicleSelectionStore();
-
     if (isLoading) {
-        return <p>Loading vehicles...</p>;
+        return (
+            <div className="p-6">
+                Loading vehicles...
+            </div>
+        );
     }
 
     if (isError) {
         return (
-            <p>
-                {(error as Error).message}
-            </p>
+            <div className="p-6 text-red-500">
+                Failed to load vehicles.
+            </div>
         );
     }
 
-    if (vehicles.length === 0) {
-        return <p>No vehicles found.</p>;
+    if (!vehicles?.length) {
+        return (
+            <div className="p-6">
+                No vehicles found.
+            </div>
+        );
     }
 
     return (
-        <div className="space-y-3">
-            {vehicles.map((vehicle) => {
-                const isSelected =
-                    vehicle.id === selectedVehicleId;
+        <div className="space-y-4">
+            {vehicles.map((vehicle) => (
+                <div
+                    key={vehicle.id}
+                    className="rounded-xl border p-4"
+                >
+                    <h3 className="font-bold">
+                        {vehicle.plate_number}
+                    </h3>
 
-                return (
-                    <button
-                        key={vehicle.id}
-                        onClick={() => selectVehicle(vehicle.id)}
-                        className={`w-full rounded-lg border p-4 text-left transition
-              ${isSelected
-                                ? "border-blue-600 bg-blue-50"
-                                : "border-gray-300"
-                            }`}
-                    >
-                        <h3 className="font-semibold">
-                            {vehicle.model}
-                        </h3>
+                    <p className="text-sm text-gray-500">
+                        {vehicle.model}
+                    </p>
 
-                        <p>{vehicle.plate_number}</p>
+                    <p className="text-sm mt-2">
+                        Driver:{" "}
+                        {vehicle.driver?.name ?? "Not assigned"}
+                    </p>
 
-                        <p>Status : {vehicle.status}</p>
-
-                        <p>Type : {vehicle.type}</p>
-
-                        <p>Year : {vehicle.year}</p>
-
-                        <p>
-                            Driver :
-                            {vehicle.driver?.name ?? "Unassigned"}
-                        </p>
-                    </button>
-                );
-            })}
+                    <AssignDriverDialog
+                        vehicleId={vehicle.id}
+                    />
+                </div>
+            ))}
         </div>
     );
 }

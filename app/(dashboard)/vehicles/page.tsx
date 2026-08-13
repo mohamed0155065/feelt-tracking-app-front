@@ -1,4 +1,4 @@
-import { VehicleList } from "@/features/vehicles/components/VehicleList";
+import VehicleList from "@/features/vehicles/components/VehicleList";
 
 /**
  * Vehicles Page

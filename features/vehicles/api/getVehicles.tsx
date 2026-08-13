@@ -1,26 +1,29 @@
-import { api } from "@/lib/axios";
-
-import { ApiResponse } from "../types/api-response.types";
-import { Vehicle } from "../types/vehicle.types";
+import { api } from "@/lib/axios/axios";
+import type { ApiResponse } from "@/GlobalTypes/ApiTypes/Api.response.types";
+import type { Vehicle } from "../types/vehicle.types";
 
 /**
- * Get Vehicles
+ * Get Vehicles API Service
  *
- * Retrieves all vehicles from the backend API.
+ * Retrieves all vehicles from the backend.
  *
  * Responsibilities:
- * - Sends the HTTP request.
- * - Returns the list of vehicles.
- * - Does not contain any UI logic.
+ *
+ * - Sends the GET request.
+ * - Receives the backend response.
+ * - Returns the vehicles data.
  *
  * Relationship with the application:
+ *
  * - Used by useVehicles().
  * - Uses the shared Axios client.
- * - Returns typed data for React Query.
+ * - Does not contain UI logic.
+ * - Does not manage loading or error states.
  */
+
 export async function getVehicles(): Promise<Vehicle[]> {
     const response = await api.get<ApiResponse<Vehicle[]>>(
-        "/api/auth/vehicles"
+        "/api/vehicles"
     );
 
     return response.data.data;

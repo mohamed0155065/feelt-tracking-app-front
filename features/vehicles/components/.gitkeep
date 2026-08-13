@@ -1,0 +1,28 @@
+/**
+ * Driver Types
+ *
+ * Responsibilities:
+ *
+ * - Defines the data structure used by the Tracking feature.
+ * - Keeps backend data strongly typed.
+ *
+ * Why this exists:
+ *
+ * The UI should not guess the structure of a driver.
+ * This file provides one shared contract for the feature.
+ */
+
+export interface DriverVehicle {
+    id: number;
+    plate_number?: string;
+    plateNumber?: string;
+    name?: string;
+}
+
+export interface Driver {
+    id: number;
+    name: string;
+    email: string;
+    phone?: string;
+    vehicle?: DriverVehicle | null;
+}

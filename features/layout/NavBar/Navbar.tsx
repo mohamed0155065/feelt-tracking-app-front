@@ -17,7 +17,7 @@
 import ConnectionStatus from "../../dashboard/";
 import { LogoutButton } from "../logout-button";
 
-import { User } from "@/lib/types";
+import { User } from "@/GlobalTypes/User.types";
 
 interface NavbarProps {
     user: User;

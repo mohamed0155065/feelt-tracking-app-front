@@ -4,7 +4,7 @@ import { Home, Users, Truck, MapPinned } from "lucide-react";
 
 import { SidebarNavLink } from "./SidebarNavLink";
 import { SidebarToggle } from "./SidebarToggle";
-import type { User } from "@/lib/types";
+import type { User } from "@/GlobalTypes/User.types";
 
 interface SidebarProps {
     user: Pick<User, "name" | "email">;

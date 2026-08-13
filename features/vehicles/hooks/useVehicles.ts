@@ -1,33 +1,31 @@
-import { useQuery } from "@tanstack/react-query";
+"use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { getVehicles } from "../api/getVehicles";
-import { vehicleQueryKeys } from "../constants/vehicle.query-keys";
 
 /**
- * Vehicles Query
+ * Get Vehicles Query Hook
  *
- * React Query hook responsible for fetching and caching
- * the vehicles collection.
+ * Manages the server state of vehicles.
  *
  * Responsibilities:
- * - Fetches vehicles from the backend.
- * - Caches the response.
- * - Exposes loading, error and success states.
- * - Keeps server state synchronized.
+ *
+ * - Executes getVehicles().
+ * - Manages loading state.
+ * - Manages error state.
+ * - Caches vehicle data.
+ * - Refetches vehicle data when required.
  *
  * Relationship with the application:
- * - VehicleList reads the vehicles.
- * - Map reads the vehicles.
- * - Vehicle Details reads the vehicles.
- * - Any component can subscribe to this hook
- *   and automatically re-render when the data changes.
+ *
+ * - Used by VehicleList.
+ * - Calls getVehicles().
+ * - Uses React Query for server-state management.
  */
+
 export function useVehicles() {
     return useQuery({
-        queryKey: vehicleQueryKeys.all,
-
+        queryKey: ["vehicles"],
         queryFn: getVehicles,
-
-        staleTime: 60 * 1000,
     });
 }

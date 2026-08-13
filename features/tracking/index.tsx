@@ -39,7 +39,7 @@ export default function DriverTrackingFeature() {
 
       {/* شاسيه هاتف PWA الداكن بالكامل كحلي ليلي */}
       <div className="w-full max-w-sm bg-[#0C1426] border border-slate-800 rounded-[40px] p-6 shadow-2xl text-center flex flex-col justify-between min-h-[580px] animate-in fade-in zoom-in-95 duration-300 relative overflow-hidden">
-        
+
         {/* وميض خلفي خفيف نابض باللون الأزرق أثناء البث النشط */}
         {isTracking && (
           <div className="absolute inset-0 bg-blue-500/5 animate-pulse pointer-events-none" />
@@ -71,14 +71,13 @@ export default function DriverTrackingFeature() {
             )}
             <button
               onClick={() => setIsTracking(!isTracking)}
-              className={`w-32 h-32 rounded-full font-bold text-xs transition-all duration-300 shadow-2xl flex flex-col items-center justify-center gap-2 border select-none active:scale-90 ${
-                isTracking 
-                  ? 'bg-blue-600 border-blue-500 text-white shadow-blue-600/30' 
-                  : 'bg-blue-600 border-blue-500 text-white shadow-blue-600/30 hover:bg-blue-700 hover:scale-105'
-              }`}
+              className={`w-32 h-32 rounded-full font-bold text-xs transition-all duration-300 shadow-2xl flex flex-col items-center justify-center gap-2 border select-none active:scale-90 ${isTracking
+                ? 'bg-blue-600 border-blue-500 text-white shadow-blue-600/30'
+                : 'bg-blue-600 border-blue-500 text-white shadow-blue-600/30 hover:bg-blue-700 hover:scale-105'
+                }`}
             >
               <span className="text-xl">🚚</span>
-              <span className="tracking-wide">{isTracking ? 'ابدأ التتبع' : 'ابدأ التتبع'}</span>
+              <span className="tracking-wide">{isTracking ? 'انهاء التتبع' : 'ابدأ التتبع'}</span>
             </button>
           </div>
           <p className="text-[11px] text-slate-400 mt-6 px-4 leading-relaxed">
