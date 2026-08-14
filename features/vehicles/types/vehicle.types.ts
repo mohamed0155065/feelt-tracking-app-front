@@ -21,12 +21,20 @@
  * It does not communicate with the backend.
  */
 
+export type VehicleType =
+    | "truck"
+    | "van"
+    | "car"
+    | "bus";
+
 export type Vehicle = {
     id: number;
-    plate_number: string;
-    model: string;
+    plate_number?: string;
+    model?: string;
+    type?: VehicleType;
     year?: number;
     driver_id: number | null;
+
     driver?: {
         id: number;
         name: string;
@@ -36,6 +44,7 @@ export type Vehicle = {
 export type CreateVehiclePayload = {
     plate_number: string;
     model: string;
+    type: VehicleType;
     year?: number;
 };
 
@@ -43,6 +52,7 @@ export type UpdateVehiclePayload = {
     id: number;
     plate_number: string;
     model: string;
+    type: VehicleType;
     year?: number;
 };
 

@@ -1,7 +1,4 @@
-"use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createVehicle } from "../api/createVehicle";
 
 /**
  * Create Vehicle Mutation Hook
@@ -20,6 +17,13 @@ import { createVehicle } from "../api/createVehicle";
  * - Calls createVehicle().
  * - Invalidates ["vehicles"] after successful creation.
  */
+
+
+
+"use client";
+
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createVehicle } from "../api/createVehicle";
 
 export function useCreateVehicle() {
     const queryClient = useQueryClient();

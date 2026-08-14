@@ -1,31 +1,19 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateVehicle } from "../api/updateVehicle";
+import {
+    useMutation,
+    useQueryClient,
+} from "@tanstack/react-query";
 
-/**
- * Update Vehicle Mutation Hook
- *
- * Manages the vehicle update mutation.
- *
- * Responsibilities:
- *
- * - Executes updateVehicle().
- * - Manages mutation state.
- * - Refreshes vehicle data after success.
- *
- * Relationship with the application:
- *
- * - Used by VehicleForm.
- * - Calls updateVehicle().
- * - Invalidates ["vehicles"] after successful update.
- */
+import { updateVehicle } from "../api/updateVehicle";
+import type { UpdateVehiclePayload } from "../types/vehicle.types";
 
 export function useUpdateVehicle() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: updateVehicle,
+        mutationFn: (payload: UpdateVehiclePayload) =>
+            updateVehicle(payload),
 
         onSuccess: () => {
             queryClient.invalidateQueries({
