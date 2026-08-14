@@ -1,27 +1,28 @@
-import { api } from "@/lib/axios";
-
-import { ApiResponse } from "../types/api-response.types";
-import { Vehicle } from "../types/vehicle.types";
+import { api } from "@/lib/axios/axios";
+import type { Vehicle } from "../types/vehicle.types";
 
 /**
- * Get Vehicles
- *
- * Retrieves all vehicles from the backend API.
+ * Get Vehicles API Service
  *
  * Responsibilities:
- * - Sends the HTTP request.
- * - Returns the list of vehicles.
- * - Does not contain any UI logic.
  *
- * Relationship with the application:
- * - Used by useVehicles().
- * - Uses the shared Axios client.
- * - Returns typed data for React Query.
+ * - Calls the Next.js vehicles API route.
+ * - Receives the vehicles array.
+ * - Returns typed vehicle data.
+ *
+ * It does NOT:
+ * - Manage loading.
+ * - Manage errors.
+ * - Handle caching.
+ * - Call Laravel directly.
+ *
+ * React Query handles those responsibilities.
  */
+
 export async function getVehicles(): Promise<Vehicle[]> {
-    const response = await api.get<ApiResponse<Vehicle[]>>(
-        "/api/auth/vehicles"
+    const response = await api.get<Vehicle[]>(
+        "/api/vehicles"
     );
 
-    return response.data.data;
+    return response.data;
 }

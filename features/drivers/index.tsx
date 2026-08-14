@@ -39,7 +39,7 @@ export default function DriversFeature() {
     useState<Driver | null>(null);
 
   const [filter, setFilter] = useState<
-    "all" | "online" | "offline"
+    "all" | "active" | "inactive"
   >("all");
 
   /* ----------------------------------------
@@ -90,11 +90,11 @@ export default function DriversFeature() {
       return true;
     }
 
-    if (filter === "online") {
+    if (filter === "active") {
       return driver.is_active === true;
     }
 
-    if (filter === "offline") {
+    if (filter === "inactive") {
       return driver.is_active === false;
     }
 
@@ -151,16 +151,16 @@ export default function DriversFeature() {
             type="button"
             onClick={() => setFilter("all")}
             className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs transition-colors ${filter === "all"
-                ? "border-blue-600 font-bold text-blue-600"
-                : "border-transparent font-medium text-slate-400 hover:text-slate-600"
+              ? "border-blue-600 font-bold text-blue-600"
+              : "border-transparent font-medium text-slate-400 hover:text-slate-600"
               }`}
           >
             <span>الكل</span>
 
             <span
               className={`rounded-full px-1.5 py-0.5 text-[9px] ${filter === "all"
-                  ? "bg-blue-50 text-blue-600"
-                  : "bg-slate-100 text-slate-400"
+                ? "bg-blue-50 text-blue-600"
+                : "bg-slate-100 text-slate-400"
                 }`}
             >
               {drivers.length}
@@ -171,18 +171,18 @@ export default function DriversFeature() {
 
           <button
             type="button"
-            onClick={() => setFilter("online")}
-            className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs transition-colors ${filter === "online"
-                ? "border-blue-600 font-bold text-blue-600"
-                : "border-transparent font-medium text-slate-400 hover:text-slate-600"
+            onClick={() => setFilter("active")}
+            className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs transition-colors ${filter === "active"
+              ? "border-blue-600 font-bold text-blue-600"
+              : "border-transparent font-medium text-slate-400 hover:text-slate-600"
               }`}
           >
             <span>نشط</span>
 
             <span
-              className={`rounded-full px-1.5 py-0.5 text-[9px] ${filter === "online"
-                  ? "bg-blue-50 text-blue-600"
-                  : "bg-slate-100 text-slate-400"
+              className={`rounded-full px-1.5 py-0.5 text-[9px] ${filter === "active"
+                ? "bg-blue-50 text-blue-600"
+                : "bg-slate-100 text-slate-400"
                 }`}
             >
               {activeCount}
@@ -193,18 +193,18 @@ export default function DriversFeature() {
 
           <button
             type="button"
-            onClick={() => setFilter("offline")}
-            className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs transition-colors ${filter === "offline"
-                ? "border-blue-600 font-bold text-blue-600"
-                : "border-transparent font-medium text-slate-400 hover:text-slate-600"
+            onClick={() => setFilter("inactive")}
+            className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs transition-colors ${filter === "inactive"
+              ? "border-blue-600 font-bold text-blue-600"
+              : "border-transparent font-medium text-slate-400 hover:text-slate-600"
               }`}
           >
             <span>غير نشط</span>
 
             <span
-              className={`rounded-full px-1.5 py-0.5 text-[9px] ${filter === "offline"
-                  ? "bg-blue-50 text-blue-600"
-                  : "bg-slate-100 text-slate-400"
+              className={`rounded-full px-1.5 py-0.5 text-[9px] ${filter === "inactive"
+                ? "bg-blue-50 text-blue-600"
+                : "bg-slate-100 text-slate-400"
                 }`}
             >
               {inactiveCount}

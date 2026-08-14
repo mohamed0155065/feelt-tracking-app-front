@@ -1,4 +1,4 @@
-import { BaseVehicle } from '@/lib/types';
+import { BaseVehicle } from "@/GlobalTypes/BaseVehicle.types"
 
 export interface LiveVehicle extends BaseVehicle {
   lat: number;

@@ -10,9 +10,9 @@ interface LiveMapProps {
 export const LiveMap: React.FC<LiveMapProps> = ({ vehicles, onSelectVehicle }) => {
   return (
     <div className="relative w-full h-full bg-zinc-900 overflow-hidden flex items-center justify-center border border-zinc-800 rounded-xl min-h-[450px]">
-      <div className="absolute inset-0 opacity-10 pointer-events-none" 
-           style={{ backgroundImage: 'radial-gradient(circle, #3b82f6 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-      
+      <div className="absolute inset-0 opacity-10 pointer-events-none"
+        style={{ backgroundImage: 'radial-gradient(circle, #3b82f6 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+
       <div className="absolute inset-0 border-t border-b border-zinc-800/50 my-auto h-1/2 flex items-center justify-between px-20">
         <div className="w-[1px] h-full bg-zinc-800/50" />
         <div className="w-[1px] h-full bg-zinc-800/50" />
