@@ -1,1 +1,9 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-custom), sans-serif;
+}
+
+input, button, textarea, select {
+  font-family: var(--font-custom), sans-serif;
+}
