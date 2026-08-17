@@ -1,24 +1,24 @@
 /**
  * Vehicle Types
  *
- * Defines the TypeScript models used throughout
+ * Defines the TypeScript contracts used throughout
  * the Vehicles feature.
  *
  * Responsibilities:
- *
- * - Defines the structure of a vehicle.
- * - Defines the data required to create a vehicle.
- * - Defines the data required to update a vehicle.
- * - Defines the relationship between a vehicle and its driver.
+ * - Defines the vehicle entity.
+ * - Defines vehicle categories.
+ * - Defines create payloads.
+ * - Defines partial update payloads.
+ * - Defines driver-assignment payloads.
  *
  * Relationship with the application:
- *
- * - Used by API services for type safety.
+ * - Used by API services.
  * - Used by React Query hooks.
- * - Used by Vehicle UI components.
+ * - Used by vehicle components.
+ * - Used by the vehicle selection store.
  *
- * This file contains types only.
- * It does not communicate with the backend.
+ * This file contains type definitions only.
+ * It does not communicate with APIs or manage state.
  */
 
 export type VehicleType =
@@ -27,18 +27,19 @@ export type VehicleType =
     | "car"
     | "bus";
 
+export type VehicleDriver = {
+    id: number;
+    name: string;
+};
+
 export type Vehicle = {
     id: number;
     plate_number?: string;
     model?: string;
     type?: VehicleType;
-    year?: number;
+    year?: number | null;
     driver_id: number | null;
-
-    driver?: {
-        id: number;
-        name: string;
-    } | null;
+    driver?: VehicleDriver | null;
 };
 
 export type CreateVehiclePayload = {
@@ -50,9 +51,9 @@ export type CreateVehiclePayload = {
 
 export type UpdateVehiclePayload = {
     id: number;
-    plate_number: string;
-    model: string;
-    type: VehicleType;
+    plate_number?: string;
+    model?: string;
+    type?: VehicleType;
     year?: number;
 };
 

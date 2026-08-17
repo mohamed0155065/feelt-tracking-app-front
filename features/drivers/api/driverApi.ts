@@ -46,7 +46,7 @@ export async function getAllDrivers() {
         );
     }
 
-    return result;
+    return result.data;
 }
 /**
  * Creates a new driver.

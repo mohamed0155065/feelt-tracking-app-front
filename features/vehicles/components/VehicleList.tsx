@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+
 import {
     Pencil,
     Trash2,
@@ -11,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { useVehicles } from "../hooks/useVehicles";
+
 import { AssignDriverDialog } from "./AssignDriverDialog";
 import { EditVehicleModal } from "./EditVehicleModal";
 import { DeleteVehicleDialog } from "./DeleteVehicleDialog";
@@ -19,7 +21,7 @@ import type { Vehicle } from "../types/vehicle.types";
 
 export default function VehicleList() {
     const {
-        data: vehicles,
+        data: vehicles = [],
         isLoading,
         isError,
     } = useVehicles();
@@ -30,6 +32,9 @@ export default function VehicleList() {
     const [deletingVehicle, setDeletingVehicle] =
         useState<Vehicle | null>(null);
 
+    const [assigningVehicle, setAssigningVehicle] =
+        useState<Vehicle | null>(null);
+
     /*
      * Loading
      */
@@ -37,12 +42,25 @@ export default function VehicleList() {
         return (
             <div
                 dir="rtl"
-                className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3"
+                className="
+                    grid
+                    grid-cols-1
+                    gap-5
+                    md:grid-cols-2
+                    xl:grid-cols-3
+                "
             >
                 {Array.from({ length: 6 }).map((_, index) => (
                     <div
                         key={index}
-                        className="animate-pulse rounded-2xl border border-slate-200 bg-white p-5"
+                        className="
+                            animate-pulse
+                            rounded-2xl
+                            border
+                            border-slate-200
+                            bg-white
+                            p-5
+                        "
                     >
                         <div className="flex justify-between">
                             <div>
@@ -72,9 +90,27 @@ export default function VehicleList() {
         return (
             <div
                 dir="rtl"
-                className="rounded-2xl border border-red-100 bg-red-50 p-6 text-center"
+                className="
+                    rounded-2xl
+                    border
+                    border-red-100
+                    bg-red-50
+                    p-6
+                    text-center
+                "
             >
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                <div
+                    className="
+                        mx-auto
+                        flex
+                        h-12
+                        w-12
+                        items-center
+                        justify-center
+                        rounded-full
+                        bg-red-100
+                    "
+                >
                     <CarFront className="h-5 w-5 text-red-500" />
                 </div>
 
@@ -92,13 +128,33 @@ export default function VehicleList() {
     /*
      * Empty
      */
-    if (!vehicles?.length) {
+    if (!vehicles.length) {
         return (
             <div
                 dir="rtl"
-                className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center"
+                className="
+                    rounded-2xl
+                    border
+                    border-dashed
+                    border-slate-300
+                    bg-white
+                    px-6
+                    py-14
+                    text-center
+                "
             >
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-50">
+                <div
+                    className="
+                        mx-auto
+                        flex
+                        h-14
+                        w-14
+                        items-center
+                        justify-center
+                        rounded-full
+                        bg-blue-50
+                    "
+                >
                     <CarFront className="h-6 w-6 text-blue-600" />
                 </div>
 
@@ -117,19 +173,23 @@ export default function VehicleList() {
         <>
             <div
                 dir="rtl"
-                className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3"
+                className="
+                    grid
+                    grid-cols-1
+                    gap-5
+                    md:grid-cols-2
+                    xl:grid-cols-3
+                "
             >
                 {vehicles.map((vehicle) => {
-                    const hasDriver = Boolean(
-                        vehicle.driver
-                    );
+                    const hasDriver =
+                        Boolean(vehicle.driver);
 
                     return (
                         <article
                             key={vehicle.id}
                             className="
                                 group
-                                overflow-hidden
                                 rounded-2xl
                                 border
                                 border-slate-200
@@ -164,20 +224,15 @@ export default function VehicleList() {
 
                                         <div className="min-w-0">
                                             <h3 className="truncate text-sm font-bold text-slate-900">
-                                                {
-                                                    vehicle.plate_number
-                                                }
+                                                {vehicle.plate_number}
                                             </h3>
 
                                             <p className="mt-1 truncate text-xs text-slate-400">
-                                                {
-                                                    vehicle.model
-                                                }
+                                                {vehicle.model}
                                             </p>
                                         </div>
                                     </div>
 
-                                    {/* Type */}
                                     {vehicle.type && (
                                         <span
                                             className="
@@ -191,16 +246,13 @@ export default function VehicleList() {
                                                 text-slate-600
                                             "
                                         >
-                                            {
-                                                vehicle.type
-                                            }
+                                            {vehicle.type}
                                         </span>
                                     )}
                                 </div>
 
                                 {/* Vehicle information */}
                                 <div className="mt-5 grid grid-cols-2 gap-3">
-                                    {/* Year */}
                                     <div className="rounded-xl bg-slate-50 p-3">
                                         <div className="flex items-center gap-2">
                                             <CalendarDays className="h-4 w-4 text-slate-400" />
@@ -216,7 +268,6 @@ export default function VehicleList() {
                                         </p>
                                     </div>
 
-                                    {/* Driver */}
                                     <div className="rounded-xl bg-slate-50 p-3">
                                         <div className="flex items-center gap-2">
                                             <UserRound className="h-4 w-4 text-slate-400" />
@@ -227,32 +278,73 @@ export default function VehicleList() {
                                         </div>
 
                                         <p
-                                            className={`mt-2 truncate text-xs font-bold ${hasDriver
+                                            className={`
+                                                mt-2
+                                                truncate
+                                                text-xs
+                                                font-bold
+                                                ${hasDriver
                                                     ? "text-slate-700"
                                                     : "text-amber-500"
-                                                }`}
+                                                }
+                                            `}
                                         >
                                             {hasDriver
-                                                ? vehicle
-                                                    .driver
-                                                    ?.name
+                                                ? vehicle.driver?.name
                                                 : "غير معين"}
                                         </p>
                                     </div>
                                 </div>
 
-                                {/* Driver assignment */}
+                                {/* Assign driver trigger */}
                                 <div className="mt-4">
-                                    <AssignDriverDialog
-                                        vehicleId={
-                                            vehicle.id
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setAssigningVehicle(
+                                                vehicle
+                                            )
                                         }
-                                    />
+                                        className="
+                                            flex
+                                            w-full
+                                            items-center
+                                            justify-center
+                                            gap-2
+                                            rounded-xl
+                                            border
+                                            border-slate-200
+                                            bg-slate-50
+                                            px-4
+                                            py-2.5
+                                            text-xs
+                                            font-bold
+                                            text-slate-700
+                                            transition
+                                            hover:border-blue-200
+                                            hover:bg-blue-50
+                                            hover:text-blue-600
+                                            active:scale-[0.99]
+                                        "
+                                    >
+                                        <UserPlus className="h-4 w-4" />
+
+                                        {hasDriver
+                                            ? "تغيير السائق"
+                                            : "تعيين سائق"}
+                                    </button>
                                 </div>
                             </div>
 
                             {/* Actions */}
-                            <div className="border-t border-slate-100 bg-slate-50/70 p-3">
+                            <div
+                                className="
+                                    border-t
+                                    border-slate-100
+                                    bg-slate-50/70
+                                    p-3
+                                "
+                            >
                                 <div className="grid grid-cols-2 gap-2">
                                     {/* Edit */}
                                     <button
@@ -325,7 +417,18 @@ export default function VehicleList() {
                 })}
             </div>
 
-            {/* Edit Modal */}
+            {/* ================================================= */}
+            {/* Dialogs MUST be outside the vehicle cards */}
+            {/* ================================================= */}
+
+            <AssignDriverDialog
+                vehicleId={assigningVehicle?.id ?? 0}
+                isOpen={Boolean(assigningVehicle)}
+                onClose={() =>
+                    setAssigningVehicle(null)
+                }
+            />
+
             <EditVehicleModal
                 vehicle={editingVehicle}
                 isOpen={Boolean(editingVehicle)}
@@ -334,7 +437,6 @@ export default function VehicleList() {
                 }
             />
 
-            {/* Delete Dialog */}
             <DeleteVehicleDialog
                 vehicle={deletingVehicle}
                 isOpen={Boolean(deletingVehicle)}
