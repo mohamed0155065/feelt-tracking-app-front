@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, {
+  useEffect,
+  useState,
+} from "react";
+
+import { Loader2, X } from "lucide-react";
+
 import { useCreateVehicle } from "../hooks/useCreateVehicle";
 import type { VehicleType } from "../types/vehicle.types";
 
@@ -9,21 +15,85 @@ interface AddVehicleModalProps {
   onClose: () => void;
 }
 
-export const AddVehicleModal: React.FC<
-  AddVehicleModalProps
-> = ({ isOpen, onClose }) => {
-  const [plateNumber, setPlateNumber] = useState("");
+/**
+ * Add Vehicle Modal
+ *
+ * Provides the form used to create a new vehicle.
+ *
+ * Responsibilities:
+ * - Collects vehicle creation data.
+ * - Performs client-side form validation.
+ * - Executes useCreateVehicle().
+ * - Displays mutation errors.
+ * - Resets the form after successful creation.
+ *
+ * Relationship with the application:
+ * - Opened by VehiclesFeature.
+ * - Uses useCreateVehicle() for server mutations.
+ * - React Query updates the vehicle list after creation.
+ *
+ * This component does not:
+ * - Call Axios directly.
+ * - Manage the vehicles cache.
+ * - Contain backend communication logic.
+ */
+
+export function AddVehicleModal({
+  isOpen,
+  onClose,
+}: AddVehicleModalProps) {
+  const [plateNumber, setPlateNumber] =
+    useState("");
+
   const [model, setModel] = useState("");
+
   const [year, setYear] = useState("");
+
   const [type, setType] =
     useState<VehicleType>("truck");
+
+  const [validationError, setValidationError] =
+    useState("");
 
   const {
     mutate,
     isPending,
     isError,
     error,
+    reset,
   } = useCreateVehicle();
+
+  const currentYear =
+    new Date().getFullYear();
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const handleEscape = (
+      event: KeyboardEvent
+    ) => {
+      if (
+        event.key === "Escape" &&
+        !isPending
+      ) {
+        onClose();
+      }
+    };
+
+    window.addEventListener(
+      "keydown",
+      handleEscape
+    );
+
+    return () => {
+      window.removeEventListener(
+        "keydown",
+        handleEscape
+      );
+    };
+  }, [isOpen, isPending, onClose]);
 
   if (!isOpen) {
     return null;
@@ -34,11 +104,47 @@ export const AddVehicleModal: React.FC<
   ) => {
     event.preventDefault();
 
-    const trimmedPlate = plateNumber.trim();
-    const trimmedModel = model.trim();
+    setValidationError("");
+    reset();
 
-    if (!trimmedPlate || !trimmedModel) {
+    const trimmedPlate =
+      plateNumber.trim();
+
+    const trimmedModel =
+      model.trim();
+
+    const trimmedYear =
+      year.trim();
+
+    if (!trimmedPlate) {
+      setValidationError(
+        "رقم اللوحة مطلوب."
+      );
       return;
+    }
+
+    if (!trimmedModel) {
+      setValidationError(
+        "موديل المركبة مطلوب."
+      );
+      return;
+    }
+
+    let parsedYear: number | undefined;
+
+    if (trimmedYear) {
+      parsedYear = Number(trimmedYear);
+
+      if (
+        !Number.isInteger(parsedYear) ||
+        parsedYear < 1900 ||
+        parsedYear > currentYear + 1
+      ) {
+        setValidationError(
+          `سنة الصنع يجب أن تكون بين 1900 و ${currentYear + 1}.`
+        );
+        return;
+      }
     }
 
     mutate(
@@ -46,16 +152,15 @@ export const AddVehicleModal: React.FC<
         plate_number: trimmedPlate,
         model: trimmedModel,
         type,
-        year: year
-          ? Number(year)
-          : undefined,
+        year: parsedYear,
       },
       {
         onSuccess: () => {
           setPlateNumber("");
           setModel("");
-          setType("truck");
           setYear("");
+          setType("truck");
+          setValidationError("");
 
           onClose();
         },
@@ -65,82 +170,67 @@ export const AddVehicleModal: React.FC<
 
   return (
     <div
-      className="
-                fixed inset-0 z-50
-                flex items-center justify-center
-                bg-zinc-950/60
-                backdrop-blur-sm
-                p-4
-                animate-in fade-in
-            "
+      dir="rtl"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (
+          event.target ===
+          event.currentTarget &&
+          !isPending
+        ) {
+          onClose();
+        }
+      }}
     >
       <div
-        dir="rtl"
-        className="
-                    relative w-full max-w-md
-                    rounded-3xl
-                    bg-white
-                    p-6
-                    shadow-2xl
-                    animate-in
-                    zoom-in-95
-                    slide-in-from-bottom-4
-                "
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-vehicle-title"
+        className="w-full max-w-md rounded-2xl border border-slate-200 bg-white shadow-2xl"
+        onMouseDown={(event) =>
+          event.stopPropagation()
+        }
       >
-        {/* Close */}
+        <div className="flex items-start justify-between border-b border-slate-100 px-6 py-5">
+          <div>
+            <h2
+              id="add-vehicle-title"
+              className="text-base font-bold text-slate-900"
+            >
+              إضافة مركبة جديدة
+            </h2>
 
-        <button
-          type="button"
-          onClick={onClose}
-          disabled={isPending}
-          className="
-                        absolute left-5 top-5
-                        text-slate-400
-                        transition
-                        hover:text-slate-700
-                        disabled:opacity-50
-                    "
-          aria-label="إغلاق"
-        >
-          ✕
-        </button>
+            <p className="mt-1 text-xs text-slate-400">
+              أضف بيانات المركبة إلى الأسطول
+            </p>
+          </div>
 
-        {/* Header */}
-
-        <div className="mb-6">
-          <h3 className="text-lg font-bold text-slate-900">
-            إضافة مركبة جديدة
-          </h3>
-
-          <p className="mt-1 text-xs text-slate-400">
-            أضف بيانات المركبة إلى الأسطول
-          </p>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isPending}
+            aria-label="إغلاق"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
-
-        {/* Form */}
 
         <form
           onSubmit={handleSubmit}
-          className="space-y-4"
+          className="space-y-4 p-6"
         >
-          {/* Plate */}
-
           <div>
             <label
-              htmlFor="plate_number"
-              className="
-                                mb-1.5
-                                block
-                                text-xs
-                                font-bold
-                                text-slate-600
-                            "
+              htmlFor="vehicle-plate-number"
+              className="mb-1.5 block text-xs font-bold text-slate-600"
             >
               رقم اللوحة
             </label>
 
             <input
-              id="plate_number"
+              id="vehicle-plate-number"
               type="text"
               value={plateNumber}
               onChange={(event) =>
@@ -150,46 +240,22 @@ export const AddVehicleModal: React.FC<
               }
               placeholder="أ ب ج 1234"
               disabled={isPending}
+              autoFocus
               required
-              className="
-                                w-full
-                                rounded-xl
-                                border border-slate-200
-                                bg-slate-50
-                                px-4 py-3
-                                text-sm
-                                text-slate-800
-                                outline-none
-                                transition
-                                placeholder:text-slate-400
-                                focus:border-blue-500
-                                focus:bg-white
-                                focus:ring-4
-                                focus:ring-blue-500/10
-                                disabled:cursor-not-allowed
-                                disabled:opacity-60
-                            "
+              className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 disabled:cursor-not-allowed disabled:opacity-60"
             />
           </div>
 
-          {/* Model */}
-
           <div>
             <label
-              htmlFor="model"
-              className="
-                                mb-1.5
-                                block
-                                text-xs
-                                font-bold
-                                text-slate-600
-                            "
+              htmlFor="vehicle-model"
+              className="mb-1.5 block text-xs font-bold text-slate-600"
             >
               الموديل
             </label>
 
             <input
-              id="model"
+              id="vehicle-model"
               type="text"
               value={model}
               onChange={(event) =>
@@ -200,45 +266,20 @@ export const AddVehicleModal: React.FC<
               placeholder="Toyota Hilux"
               disabled={isPending}
               required
-              className="
-                                w-full
-                                rounded-xl
-                                border border-slate-200
-                                bg-slate-50
-                                px-4 py-3
-                                text-sm
-                                text-slate-800
-                                outline-none
-                                transition
-                                placeholder:text-slate-400
-                                focus:border-blue-500
-                                focus:bg-white
-                                focus:ring-4
-                                focus:ring-blue-500/10
-                                disabled:cursor-not-allowed
-                                disabled:opacity-60
-                            "
+              className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 disabled:cursor-not-allowed disabled:opacity-60"
             />
           </div>
 
-          {/* Type */}
-
           <div>
             <label
-              htmlFor="type"
-              className="
-                                mb-1.5
-                                block
-                                text-xs
-                                font-bold
-                                text-slate-600
-                            "
+              htmlFor="vehicle-type"
+              className="mb-1.5 block text-xs font-bold text-slate-600"
             >
               نوع المركبة
             </label>
 
             <select
-              id="type"
+              id="vehicle-type"
               value={type}
               onChange={(event) =>
                 setType(
@@ -247,23 +288,7 @@ export const AddVehicleModal: React.FC<
                 )
               }
               disabled={isPending}
-              className="
-                                w-full
-                                rounded-xl
-                                border border-slate-200
-                                bg-slate-50
-                                px-4 py-3
-                                text-sm
-                                text-slate-800
-                                outline-none
-                                transition
-                                focus:border-blue-500
-                                focus:bg-white
-                                focus:ring-4
-                                focus:ring-blue-500/10
-                                disabled:cursor-not-allowed
-                                disabled:opacity-60
-                            "
+              className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 disabled:opacity-60"
             >
               <option value="truck">
                 شاحنة
@@ -283,28 +308,19 @@ export const AddVehicleModal: React.FC<
             </select>
           </div>
 
-          {/* Year */}
-
           <div>
             <label
-              htmlFor="year"
-              className="
-                                mb-1.5
-                                block
-                                text-xs
-                                font-bold
-                                text-slate-600
-                            "
+              htmlFor="vehicle-year"
+              className="mb-1.5 block text-xs font-bold text-slate-600"
             >
               سنة الصنع
-
               <span className="mr-1 font-normal text-slate-400">
                 (اختياري)
               </span>
             </label>
 
             <input
-              id="year"
+              id="vehicle-year"
               type="number"
               value={year}
               onChange={(event) =>
@@ -312,55 +328,30 @@ export const AddVehicleModal: React.FC<
                   event.target.value
                 )
               }
-              placeholder="2024"
-              min="1900"
-              max={
-                new Date().getFullYear() + 1
-              }
+              min={1900}
+              max={currentYear + 1}
               disabled={isPending}
-              className="
-                                w-full
-                                rounded-xl
-                                border border-slate-200
-                                bg-slate-50
-                                px-4 py-3
-                                text-sm
-                                text-slate-800
-                                outline-none
-                                transition
-                                placeholder:text-slate-400
-                                focus:border-blue-500
-                                focus:bg-white
-                                focus:ring-4
-                                focus:ring-blue-500/10
-                                disabled:cursor-not-allowed
-                                disabled:opacity-60
-                            "
+              placeholder={String(
+                currentYear
+              )}
+              className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 disabled:opacity-60"
             />
           </div>
 
-          {/* Error */}
+          {(validationError ||
+            isError) && (
+              <div
+                role="alert"
+                className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-xs font-medium text-red-600"
+              >
+                {validationError ||
+                  (error instanceof Error
+                    ? error.message
+                    : "حدث خطأ أثناء إضافة المركبة.")}
+              </div>
+            )}
 
-          {isError && (
-            <div
-              className="
-                                rounded-xl
-                                border border-red-100
-                                bg-red-50
-                                px-4 py-3
-                                text-xs
-                                text-red-600
-                            "
-            >
-              {error instanceof Error
-                ? error.message
-                : "حدث خطأ أثناء حفظ بيانات المركبة."}
-            </div>
-          )}
-
-          {/* Actions */}
-
-          <div className="flex gap-3 pt-3">
+          <div className="flex gap-3 pt-2">
             <button
               type="submit"
               disabled={
@@ -368,46 +359,23 @@ export const AddVehicleModal: React.FC<
                 !plateNumber.trim() ||
                 !model.trim()
               }
-              className="
-                                flex-1
-                                rounded-xl
-                                bg-blue-600
-                                py-3
-                                text-sm
-                                font-bold
-                                text-white
-                                shadow-lg
-                                shadow-blue-500/20
-                                transition
-                                hover:bg-blue-700
-                                active:scale-[0.98]
-                                disabled:cursor-not-allowed
-                                disabled:opacity-50
-                            "
+              className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isPending
-                ? "جاري الإضافة..."
-                : "إضافة المركبة"}
+              {isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  جاري الإضافة...
+                </>
+              ) : (
+                "إضافة المركبة"
+              )}
             </button>
 
             <button
               type="button"
               onClick={onClose}
               disabled={isPending}
-              className="
-                                rounded-xl
-                                border border-slate-200
-                                bg-white
-                                px-6
-                                py-3
-                                text-sm
-                                font-bold
-                                text-slate-600
-                                transition
-                                hover:bg-slate-50
-                                active:scale-[0.98]
-                                disabled:opacity-50
-                            "
+              className="min-h-11 rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50"
             >
               إلغاء
             </button>
@@ -416,4 +384,4 @@ export const AddVehicleModal: React.FC<
       </div>
     </div>
   );
-};
+}

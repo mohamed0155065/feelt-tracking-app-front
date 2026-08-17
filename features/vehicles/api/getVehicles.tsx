@@ -4,19 +4,23 @@ import type { Vehicle } from "../types/vehicle.types";
 /**
  * Get Vehicles API Service
  *
- * Responsibilities:
+ * Retrieves the current vehicle collection
+ * through the application's Next.js API boundary.
  *
- * - Calls the Next.js vehicles API route.
- * - Receives the vehicles array.
+ * Responsibilities:
+ * - Sends the GET request.
  * - Returns typed vehicle data.
  *
- * It does NOT:
- * - Manage loading.
- * - Manage errors.
- * - Handle caching.
- * - Call Laravel directly.
+ * Relationship with the application:
+ * - Used by useVehicles().
+ * - Uses the shared Axios client.
+ * - Communicates with /api/vehicles.
  *
- * React Query handles those responsibilities.
+ * This service does not:
+ * - Manage React state.
+ * - Manage React Query cache.
+ * - Render UI.
+ * - Communicate directly with Laravel.
  */
 
 export async function getVehicles(): Promise<Vehicle[]> {

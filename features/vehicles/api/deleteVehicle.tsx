@@ -4,19 +4,22 @@ import type { ApiResponse } from "@/GlobalTypes/ApiTypes/Api.response.types";
 /**
  * Delete Vehicle API Service
  *
- * Deletes a vehicle from the backend.
+ * Deletes a vehicle through the application API.
  *
  * Responsibilities:
- *
- * - Sends the vehicle ID.
- * - Executes the DELETE request.
- * - Returns the backend response.
+ * - Receives the vehicle ID.
+ * - Sends the DELETE request.
+ * - Returns when the backend operation succeeds.
  *
  * Relationship with the application:
- *
  * - Used by useDeleteVehicle().
  * - Uses the shared Axios client.
- * - Does not contain UI logic.
+ * - Communicates with /api/vehicles/{id}.
+ *
+ * This service does not:
+ * - Manage UI confirmation state.
+ * - Manage React Query cache.
+ * - Render notifications.
  */
 
 export async function deleteVehicle(

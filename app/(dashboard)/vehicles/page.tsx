@@ -1,7 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Plus, CarFront, Users, UserX } from "lucide-react";
+import {
+  Plus,
+  CarFront,
+  Users,
+  UserX,
+} from "lucide-react";
 
 import VehicleList from "@/features/vehicles/components/VehicleList";
 import { AddVehicleModal } from "@/features/vehicles/components/AddVehicleModal";
@@ -13,13 +18,36 @@ export default function VehiclesPage() {
   const {
     data: vehicles = [],
     isLoading,
+    isError,
   } = useVehicles();
 
-  const statistics = useMemo(() => {
-    const total = vehicles.length;
+  /**
+   * Normalize the query result.
+   *
+   * Prevents undefined/null items from breaking
+   * statistics calculations.
+   */
+  const safeVehicles = useMemo(() => {
+    if (!Array.isArray(vehicles)) {
+      return [];
+    }
 
-    const assigned = vehicles.filter(
-      (vehicle) => Boolean(vehicle.driver)
+    return vehicles.filter(Boolean);
+  }, [vehicles]);
+
+  /**
+   * Vehicle statistics
+   *
+   * driver_id is the source of truth for assignment.
+   * We do NOT depend on vehicle.driver because the
+   * relationship object may be null or temporarily
+   * unavailable after a mutation.
+   */
+  const statistics = useMemo(() => {
+    const total = safeVehicles.length;
+
+    const assigned = safeVehicles.filter(
+      (vehicle) => vehicle.driver_id !== null && vehicle.driver_id !== undefined
     ).length;
 
     const withoutDriver = total - assigned;
@@ -29,7 +57,7 @@ export default function VehiclesPage() {
       assigned,
       withoutDriver,
     };
-  }, [vehicles]);
+  }, [safeVehicles]);
 
   return (
     <main
@@ -45,7 +73,21 @@ export default function VehiclesPage() {
 
             <div className="flex items-center gap-4">
 
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/20">
+              <div
+                className="
+                  flex
+                  h-12
+                  w-12
+                  shrink-0
+                  items-center
+                  justify-center
+                  rounded-2xl
+                  bg-blue-600
+                  text-white
+                  shadow-lg
+                  shadow-blue-600/20
+                "
+              >
                 <CarFront className="h-6 w-6" />
               </div>
 
@@ -91,6 +133,27 @@ export default function VehiclesPage() {
           </div>
         </header>
 
+        {/* ================= ERROR ================= */}
+
+        {isError && (
+          <div
+            className="
+              mb-8
+              rounded-2xl
+              border
+              border-red-100
+              bg-red-50
+              px-5
+              py-4
+              text-sm
+              font-medium
+              text-red-600
+            "
+          >
+            تعذر تحميل بيانات المركبات.
+          </div>
+        )}
+
         {/* ================= STATISTICS ================= */}
 
         <section className="mb-8">
@@ -109,7 +172,16 @@ export default function VehiclesPage() {
 
             {/* Total */}
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div
+              className="
+                rounded-2xl
+                border
+                border-slate-200
+                bg-white
+                p-5
+                shadow-sm
+              "
+            >
               <div className="flex items-center justify-between">
 
                 <div>
@@ -122,7 +194,17 @@ export default function VehiclesPage() {
                   </p>
                 </div>
 
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50">
+                <div
+                  className="
+                    flex
+                    h-11
+                    w-11
+                    items-center
+                    justify-center
+                    rounded-xl
+                    bg-blue-50
+                  "
+                >
                   <CarFront className="h-5 w-5 text-blue-600" />
                 </div>
 
@@ -131,7 +213,16 @@ export default function VehiclesPage() {
 
             {/* Assigned */}
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div
+              className="
+                rounded-2xl
+                border
+                border-slate-200
+                bg-white
+                p-5
+                shadow-sm
+              "
+            >
               <div className="flex items-center justify-between">
 
                 <div>
@@ -144,7 +235,17 @@ export default function VehiclesPage() {
                   </p>
                 </div>
 
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50">
+                <div
+                  className="
+                    flex
+                    h-11
+                    w-11
+                    items-center
+                    justify-center
+                    rounded-xl
+                    bg-emerald-50
+                  "
+                >
                   <Users className="h-5 w-5 text-emerald-600" />
                 </div>
 
@@ -153,7 +254,16 @@ export default function VehiclesPage() {
 
             {/* Without Driver */}
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div
+              className="
+                rounded-2xl
+                border
+                border-slate-200
+                bg-white
+                p-5
+                shadow-sm
+              "
+            >
               <div className="flex items-center justify-between">
 
                 <div>
@@ -166,7 +276,17 @@ export default function VehiclesPage() {
                   </p>
                 </div>
 
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-50">
+                <div
+                  className="
+                    flex
+                    h-11
+                    w-11
+                    items-center
+                    justify-center
+                    rounded-xl
+                    bg-amber-50
+                  "
+                >
                   <UserX className="h-5 w-5 text-amber-500" />
                 </div>
 
@@ -180,7 +300,17 @@ export default function VehiclesPage() {
 
         <section>
 
-          <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div
+            className="
+              mb-5
+              flex
+              flex-col
+              gap-2
+              sm:flex-row
+              sm:items-end
+              sm:justify-between
+            "
+          >
 
             <div>
               <h2 className="text-lg font-bold text-slate-900">
@@ -193,7 +323,21 @@ export default function VehiclesPage() {
             </div>
 
             {!isLoading && (
-              <span className="w-fit rounded-full bg-white px-3 py-1.5 text-xs font-bold text-slate-500 shadow-sm ring-1 ring-slate-200">
+              <span
+                className="
+                  w-fit
+                  rounded-full
+                  bg-white
+                  px-3
+                  py-1.5
+                  text-xs
+                  font-bold
+                  text-slate-500
+                  shadow-sm
+                  ring-1
+                  ring-slate-200
+                "
+              >
                 {statistics.total} مركبة
               </span>
             )}

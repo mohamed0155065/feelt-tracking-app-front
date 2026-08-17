@@ -18,6 +18,7 @@ interface EditVehicleModalProps {
 }
 
 type UpdateVehiclePayload = {
+
     plate_number?: string;
     model?: string;
     type?: string;
