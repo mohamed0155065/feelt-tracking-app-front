@@ -79,13 +79,38 @@ export async function POST(request: NextRequest) {
             maxAge: 60 * 60 * 24 * 7,
         });
 
-        response.cookies.set("role", data.user.role, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            path: "/",
-            maxAge: 60 * 60 * 24 * 7,
-        });
+             /**
+         * Stores a minimal user profile (id/name/email/role) in an
+         * HttpOnly cookie.
+         *
+         * Why: Server Components (e.g. the /driver page) need to
+         * resolve "who is logged in" on every request, on the server,
+         * before any HTML is sent. Relying on client-only storage
+         * (localStorage/Zustand) for this creates a hydration race
+         * and breaks entirely in incognito/private browsing or on a
+         * direct page load. Reading this cookie server-side removes
+         * that race completely — the identity is known before render.
+         *
+         * This is NOT the authentication token. It carries no secret
+         * value and grants no access by itself; every protected
+         * Next.js API route still validates the "token" cookie.
+         */
+        response.cookies.set(
+            "user",
+            JSON.stringify({
+                id: data.user.id,
+                name: data.user.name,
+                email: data.user.email,
+                role: data.user.role,
+            }),
+            {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                path: "/",
+                maxAge: 60 * 60 * 24 * 7,
+            }
+        );;
 
         return response;
     } catch (err) {

@@ -21,15 +21,16 @@
 
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
+import { CarFront } from "lucide-react";
+
+import { useVehicles } from "@/features/vehicles/hooks/useVehicles";
 
 export interface Driver {
   id: number;
   name: string;
   email: string;
   phone: string;
-  vehicleId?: string | null;
-  vehicle?: string | null;
   is_active: boolean;
 }
 
@@ -45,6 +46,25 @@ export const DriversTable: React.FC<DriversTableProps> = ({
   onEditDriver,
   onDeleteDriver,
 }) => {
+  /**
+   * Vehicles are the single source of truth for the
+   * driver <-> vehicle relationship. We derive each
+   * driver's vehicle from vehicle.driver_id instead of
+   * relying on any vehicle field coming from the drivers
+   * endpoint itself.
+   */
+  const { data: vehicles = [] } = useVehicles();
+
+  const vehicleByDriverId = useMemo(
+    () =>
+      new Map(
+        vehicles
+          .filter((vehicle) => vehicle.driver_id !== null && vehicle.driver_id !== undefined)
+          .map((vehicle) => [vehicle.driver_id as number, vehicle])
+      ),
+    [vehicles]
+  );
+
   if (drivers.length === 0) {
     return (
       <div className="rounded-xl border border-slate-200 bg-white p-10 text-center">
@@ -89,7 +109,10 @@ export const DriversTable: React.FC<DriversTableProps> = ({
           </thead>
 
           <tbody>
-            {drivers.map((driver) => (
+            {drivers.map((driver) => {
+              const vehicle = vehicleByDriverId.get(driver.id);
+
+              return (
               <tr
                 key={driver.id}
                 className="border-b border-slate-100 transition-colors hover:bg-slate-50/70"
@@ -128,8 +151,30 @@ export const DriversTable: React.FC<DriversTableProps> = ({
 
                 {/* Vehicle */}
 
-                <td className="px-4 py-3 text-xs text-slate-500">
-                  {driver.vehicle ?? driver.vehicleId ?? "—"}
+                <td className="px-4 py-3">
+                  {vehicle ? (
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                        <CarFront className="h-3.5 w-3.5" />
+                      </div>
+
+                      <div className="min-w-0">
+                        <p className="truncate text-xs font-bold text-slate-700">
+                          {vehicle.plate_number}
+                        </p>
+
+                        {vehicle.model && (
+                          <p className="truncate text-[10px] text-slate-400">
+                            {vehicle.model}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <span className="text-xs font-bold text-amber-500">
+                      غير معينة
+                    </span>
+                  )}
                 </td>
 
                 {/* Status */}
@@ -177,7 +222,8 @@ export const DriversTable: React.FC<DriversTableProps> = ({
                 </td>
 
               </tr>
-            ))}
+              );
+            })}
           </tbody>
 
         </table>

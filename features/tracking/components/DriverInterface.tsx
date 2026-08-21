@@ -5,6 +5,7 @@ import type { User } from "@/GlobalTypes/User.types";
 
 interface DriverInterfaceProps {
   user: Pick<User, "name" | "email">;
+  vehiclePlate?: string | null;
 }
 
 /**
@@ -12,26 +13,49 @@ interface DriverInterfaceProps {
  *
  * Responsibilities:
  * - Displays the authenticated driver's information.
+ * - Displays the driver's assigned vehicle plate number, if any.
  * - Displays the current tracking state.
  * - Displays the current simulated coordinates.
  * - Handles the driver's Start/End Tracking button UI.
  *
- * Why it receives user as a prop:
+ * Why it receives user and vehiclePlate as props:
  * - Authentication is not the responsibility of this component.
- * - The parent feature provides the authenticated user.
- * - This keeps the UI component focused on presentation and interaction.
+ * - Vehicle assignment lookup is not the responsibility of this component.
+ * - The parent feature provides both, keeping this component
+ *   focused on presentation and interaction only.
  *
  * Current scope:
  * - The tracking behavior is still simulated.
  * - Geolocation and backend tracking requests are NOT implemented yet.
  */
-export const DriverInterface: React.FC<DriverInterfaceProps> = ({ user }) => {
+export const DriverInterface: React.FC<DriverInterfaceProps> = ({ user, vehiclePlate }) => {
   const [isTracking, setIsTracking] = useState(false);
 
   const [coords, setCoords] = useState({
     lat: 24.7136,
     lng: 46.6753,
   });
+
+  /**
+   * Real clock, formatted in Cairo local time (not the
+   * user's/browser's system timezone), refreshed every second.
+   */
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const clockInterval = setInterval(() => {
+      setNow(new Date());
+    }, 1000);
+
+    return () => clearInterval(clockInterval);
+  }, []);
+
+  const cairoTime = new Intl.DateTimeFormat("ar-EG", {
+    timeZone: "Africa/Cairo",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(now);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | undefined;
@@ -52,6 +76,28 @@ export const DriverInterface: React.FC<DriverInterfaceProps> = ({ user }) => {
     };
   }, [isTracking]);
 
+  /**
+   * Warn the driver before leaving/closing the page while
+   * tracking is active, so a trip doesn't get interrupted
+   * by accident.
+   */
+  useEffect(() => {
+    if (!isTracking) {
+      return;
+    }
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isTracking]);
+
   return (
     <div
       dir="rtl"
@@ -64,7 +110,7 @@ export const DriverInterface: React.FC<DriverInterfaceProps> = ({ user }) => {
 
       {/* Header / Connection Status */}
       <div className="flex justify-between items-center text-xs text-slate-400 font-mono relative z-10">
-        <span className="font-bold">9:41</span>
+        <span className="font-bold">{cairoTime}</span>
 
         <div className="flex items-center gap-1.5 bg-slate-900/60 px-2 py-1 rounded-full border border-slate-800">
           <span
@@ -89,6 +135,16 @@ export const DriverInterface: React.FC<DriverInterfaceProps> = ({ user }) => {
         <p className="text-xs text-slate-400 mt-1 truncate">
           {user.email}
         </p>
+
+        {vehiclePlate ? (
+          <p className="text-sm font-mono text-blue-400 mt-2 tracking-wide">
+            {vehiclePlate}
+          </p>
+        ) : (
+          <p className="text-[11px] text-amber-500 mt-2">
+            لا توجد مركبة معينة لك حاليًا
+          </p>
+        )}
       </div>
 
       {/* Tracking Button */}
@@ -96,8 +152,8 @@ export const DriverInterface: React.FC<DriverInterfaceProps> = ({ user }) => {
         <div className="relative flex items-center justify-center">
           {isTracking && (
             <>
-              <span className="absolute w-44 h-44 rounded-full bg-red-500/20 animate-ping" />
-              <span className="absolute w-48 h-48 rounded-full bg-red-500/10 animate-pulse" />
+              <span className="absolute w-44 h-44 rounded-full bg-red-500/20 animate-ping pointer-events-none" />
+              <span className="absolute w-48 h-48 rounded-full bg-red-500/10 animate-pulse pointer-events-none" />
             </>
           )}
 

@@ -34,9 +34,7 @@ interface EditDriverModalProps {
     onClose: () => void;
 }
 
-export const EditDriverModal: React.FC<
-    EditDriverModalProps
-> = ({
+export const EditDriverModal: React.FC<EditDriverModalProps> = ({
     isOpen,
     driver,
     onClose,
@@ -52,9 +50,6 @@ export const EditDriverModal: React.FC<
             email: driver.email ?? "",
             phone: driver.phone ?? "",
             password: "",
-            vehicleId: driver.vehicleId
-                ? String(driver.vehicleId)
-                : "",
             is_active: driver.is_active ?? true,
         };
 
@@ -67,8 +62,6 @@ export const EditDriverModal: React.FC<
                         email: data.email || undefined,
                         phone: data.phone || undefined,
                         password: data.password || undefined,
-                        vehicleId:
-                            data.vehicleId || undefined,
                         is_active: data.is_active,
                     },
                 },

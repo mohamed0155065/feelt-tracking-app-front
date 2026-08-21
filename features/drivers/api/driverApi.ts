@@ -23,7 +23,6 @@ export interface DriverPayload {
     email?: string;
     phone?: string;
     password?: string;
-    vehicleId?: string;
     is_active?: boolean;
 }
 
@@ -37,8 +36,6 @@ export async function getAllDrivers() {
     });
 
     const result = await response.json();
-
-    console.log("🔥 DRIVERS API RESPONSE:", result);
 
     if (!response.ok || !result.success) {
         throw new Error(

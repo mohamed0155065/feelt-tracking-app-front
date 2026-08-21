@@ -27,7 +27,6 @@ export interface DriverFormData {
     email: string;
     phone: string;
     password: string;
-    vehicleId: string;
     is_active: boolean;
 }
 
@@ -45,7 +44,6 @@ const defaultFormData: DriverFormData = {
     email: "",
     phone: "",
     password: "",
-    vehicleId: "",
     is_active: true,
 };
 
@@ -72,19 +70,18 @@ export function DriverForm({
 
     const isEditMode = mode === "edit";
 
-    const handleChange = (
-        event: React.ChangeEvent<
-            HTMLInputElement | HTMLSelectElement
-        >
-    ) => {
-        const { name, value } = event.target;
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+) => {
+    const { name, value } = event.target;
 
-        setFormData((previous) => ({
-            ...previous,
-            [name]: value,
-        }));
-    };
+    setFormData((previous) => ({
+        ...previous,
+        [name]: value,
+    }));
+};
 
+  
     const handleActiveChange = (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
@@ -284,46 +281,6 @@ export function DriverForm({
                     </div>
 
                     <div className="space-y-4">
-
-                        {/* Vehicle */}
-
-                        <div>
-                            <label
-                                htmlFor="driver-vehicle"
-                                className={labelClass}
-                            >
-                                تعيين مركبة
-                            </label>
-
-                            <select
-                                id="driver-vehicle"
-                                name="vehicleId"
-                                value={formData.vehicleId}
-                                onChange={handleChange}
-                                disabled={isPending}
-                                className={`${inputClass} cursor-pointer`}
-                            >
-                                <option value="">
-                                    بدون مركبة
-                                </option>
-
-                                <option value="1">
-                                    أ ب ج 1234
-                                </option>
-
-                                <option value="2">
-                                    د هـ و 5678
-                                </option>
-
-                                <option value="3">
-                                    ز ح ط 9012
-                                </option>
-
-                                <option value="4">
-                                    س ش ص 7890
-                                </option>
-                            </select>
-                        </div>
 
                         {/* Active Status */}
 
