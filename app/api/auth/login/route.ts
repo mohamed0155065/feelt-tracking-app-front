@@ -51,6 +51,10 @@ export async function POST(request: NextRequest) {
     });
 
     // User information
+    // Kept in sync with the `User` shape returned to the client —
+    // any field the client relies on (e.g. vehicle_id for drivers)
+    // must be included here too, otherwise a future server-side
+    // reader of this cookie would silently disagree with the client.
     response.cookies.set(
       "user",
       JSON.stringify({
@@ -58,6 +62,7 @@ export async function POST(request: NextRequest) {
         name: data.user.name,
         email: data.user.email,
         role: data.user.role,
+        vehicle_id: data.user.vehicle_id ?? null,
       }),
       {
         httpOnly: true,
@@ -96,9 +101,7 @@ export async function POST(request: NextRequest) {
       {
         success: false,
         message:
-          err instanceof Error
-            ? err.message
-            : "حدث خطأ غير متوقع",
+          err instanceof Error ? err.message : "حدث خطأ غير متوقع",
         errors: {},
       },
       {

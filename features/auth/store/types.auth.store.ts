@@ -1,4 +1,4 @@
-type UserInfo = {
+export type UserInfo = {
   id: string | null;
   name: string | null;
   email: string | null;

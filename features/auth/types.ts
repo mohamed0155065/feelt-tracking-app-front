@@ -9,10 +9,11 @@ export type User = {
   email: string;
   phone: string;
   role: string;
-  avatar: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  vehicle_id: number | null;
+  avatar?: string;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type LoginResponseData = {

@@ -30,6 +30,7 @@ export type VehicleType =
 export type VehicleDriver = {
     id: number;
     name: string;
+    phone:string;
 };
 
 export type Vehicle = {

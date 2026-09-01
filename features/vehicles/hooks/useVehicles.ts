@@ -1,31 +1,43 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
 
 import { getVehicles } from "../api/getVehicles";
 import { vehicleQueryKeys } from "../constants/vehicle.query-keys";
+import type { Vehicle } from "../types/vehicle.types";
 
-export function useVehicles() {
-    return useQuery({
-        queryKey: vehicleQueryKeys.list(),
-        queryFn: getVehicles,
+type UseVehiclesOptions = Partial<
+  Pick<
+    UseQueryOptions<Vehicle[], unknown, Vehicle[]>,
+    "refetchInterval" | "refetchIntervalInBackground"
+  >
+>;
 
-        staleTime: 30_000,
+export function useVehicles(options: UseVehiclesOptions = {}) {
+  return useQuery({
+    queryKey: vehicleQueryKeys.list(),
+    queryFn: getVehicles,
 
-        gcTime: 5 * 60_000,
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
 
-        refetchOnWindowFocus: true,
+    refetchOnWindowFocus: true,
 
-        /**
-         * Never allow an invalid response to become
-         * the vehicle list consumed by the UI.
-         */
-        select: (vehicles) => {
-            if (!Array.isArray(vehicles)) {
-                return [];
-            }
+    // Polling is opt-in.
+    refetchInterval: options.refetchInterval,
+    refetchIntervalInBackground:
+      options.refetchIntervalInBackground ?? false,
 
-            return vehicles.filter(Boolean);
-        },
-    });
+    /**
+     * Never allow an invalid response to become
+     * the vehicle list consumed by the UI.
+     */
+    select: (vehicles) => {
+      if (!Array.isArray(vehicles)) {
+        return [];
+      }
+
+      return vehicles.filter(Boolean);
+    },
+  });
 }

@@ -1,4 +1,4 @@
-import { LoginCredentials, User } from "../types";
+import { LoginCredentials, LoginResponseData } from "../types";
 import { ApiErrorShape } from "../types";
 
 export class LoginRequestError extends Error {
@@ -10,11 +10,14 @@ export class LoginRequestError extends Error {
     this.status = shape.status;
   }
 }
-
-export const loginApi = async (credentials: LoginCredentials): Promise<{ user: User }> => {
+export const loginApi = async (
+  credentials: LoginCredentials,
+): Promise<LoginResponseData> => {
   const res = await fetch("/api/auth/login", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify(credentials),
     credentials: "same-origin",
   });
