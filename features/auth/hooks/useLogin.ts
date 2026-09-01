@@ -9,6 +9,7 @@ import { loginSchema } from "../schemas";
 import { loginApi, LoginRequestError } from "../api/login";
 import { LoginCredentials } from "../types";
 import { useInfoUser } from "../store/auth.store";
+import { mapUserToUserInfo } from "../lib/mapUserToUserInfo";
 
 export const useLogin = () => {
   const router = useRouter();
@@ -31,12 +32,7 @@ export const useLogin = () => {
     mutationFn: loginApi,
 
     onSuccess: ({ user }) => {
-      setUserInfo({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      });
+      setUserInfo(mapUserToUserInfo(user));
 
       const destination =
         user.role === "driver" ? "/driver" : "/dashboard";
